@@ -15,6 +15,11 @@ async function generateInvoiceNumber() {
   return `${prefix}${String(nextNum).padStart(3, '0')}`
 }
 
+// ── Send notification helper ──
+async function sendNotification(message) {
+  await supabase.from('notifications').insert({ message, read: false })
+}
+
 export function useOrders() {
   const [orders,  setOrders]  = useState([])
   const [loading, setLoading] = useState(false)
@@ -26,7 +31,7 @@ export function useOrders() {
     const { data, error } = await supabase
       .from('orders')
       .select('*')
-      .order('factory_out', { ascending: true, nullsFirst: false }) // ← latest first
+      .order('factory_out', { ascending: true, nullsFirst: false })
     if (error) {
       setError(error.message)
     } else {
@@ -47,22 +52,67 @@ export function useOrders() {
         .from('orders')
         .insert({ ...rec, submitted_by: submittedBy, order_number, status: 'In Production' })
       if (error) throw new Error(error.message)
+
+      // ── Notify new order submitted ──
+      await sendNotification(
+        `📋 New order ${order_number} submitted — ${rec.brand} (${rec.company})`
+      )
     }
     await loadOrders()
   }
 
   async function updateStatus(id, status) {
+    // Get the order details first for the notification message
+    const order = orders.find(o => o.id === id)
+
     const { error } = await supabase.from('orders').update({ status }).eq('id', id)
     if (error) throw new Error(error.message)
+
+    // ── Notify status change ──
+    if (order) {
+      const statusEmoji = {
+        'In Production': '🏭',
+        'Shipped':       '🚚',
+        'Completed':     '✅',
+      }
+      await sendNotification(
+        `${statusEmoji[status] || '📦'} Order ${order.order_number} — ${order.brand} is now ${status}`
+      )
+    }
+
     setOrders(prev => prev.map(o => (o.id === id ? { ...o, status } : o)))
   }
 
   async function saveAdmin(id, { status, factory_out, admin_note, courier, tracking_number }) {
+    // Get order before update for notification
+    const order = orders.find(o => o.id === id)
+    const prevStatus = order?.status
+
     const { error } = await supabase
       .from('orders')
       .update({ status, factory_out, admin_note, courier, tracking_number })
       .eq('id', id)
     if (error) throw new Error(error.message)
+
+    // ── Notify if status changed ──
+    if (order && prevStatus !== status) {
+      const statusEmoji = {
+        'In Production': '🏭',
+        'Shipped':       '🚚',
+        'Completed':     '✅',
+      }
+      await sendNotification(
+        `${statusEmoji[status] || '📦'} Order ${order.order_number} — ${order.brand} updated to ${status}`
+      )
+    }
+
+    // ── Notify if tracking number added ──
+    if (order && tracking_number && !order.tracking_number) {
+      await sendNotification(
+        `📦 Tracking added for ${order.order_number} — ${order.brand}: ${tracking_number}`
+      )
+    }
+
     await loadOrders()
   }
 

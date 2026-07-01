@@ -2,6 +2,7 @@ import { useState } from 'react'
 import * as XLSX from 'xlsx'
 import { supabase } from '../lib/supabase'
 
+
 // ── Convert Excel serial date number to YYYY-MM-DD ──
 function excelDateToISO(val) {
   if (!val) return null
@@ -43,7 +44,7 @@ function excelDateToISO(val) {
   return null
 }
 
-function mapRow(row, index) {
+function mapRow(row, index, submittedBy) {
   const clean = (val) => {
     if (val === null || val === undefined) return null
     const s = String(val).trim()
@@ -123,11 +124,11 @@ function mapRow(row, index) {
     ref_link:     ref,
     factory_out,  // null if invalid — Supabase accepts null for date columns
     status:       'Completed',
-    submitted_by: 'import',
+    submitted_by: submittedBy || 'import',
   }
 }
 
-export default function ImportModal({ onClose, onDone }) {
+export default function ImportModal({ onClose, onDone, submittedBy }) {
   const [rows,     setRows]     = useState([])
   const [fileName, setFileName] = useState('')
   const [loading,  setLoading]  = useState(false)
@@ -151,7 +152,7 @@ export default function ImportModal({ onClose, onDone }) {
         const data = XLSX.utils.sheet_to_json(ws, { defval: null, raw: true })
 
         const mapped = data
-          .map((row, i) => mapRow(row, i))
+        .map((row, i) => mapRow(row, i, submittedBy))
           .filter(r => r.brand !== '—' || r.company !== '—') // skip totally empty rows
 
         setRows(mapped)
