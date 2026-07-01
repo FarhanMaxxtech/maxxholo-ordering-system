@@ -50,18 +50,21 @@ export default function Header({ me, onNewOrder, onLogout }) {
   // ── Real-time listener for new notifications ──
   useEffect(() => {
     const channel = supabase
-      .channel('notifications-channel')
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'notifications' },
-        (payload) => {
-          const newNotif = payload.new
-          setNotifications(prev => [newNotif, ...prev])
-          setUnread(prev => prev + 1)
-          playNotifSound()
-        }
-      )
-      .subscribe()
+    .channel('notifications-channel')
+    .on(
+      'postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'notifications' },
+      (payload) => {
+        const newNotif = payload.new
+        // ── Only show if targeted to this user or broadcast to all ──
+        const isForMe = !newNotif.user_email || newNotif.user_email === me.email
+        if (!isForMe) return
+        setNotifications(prev => [newNotif, ...prev])
+        setUnread(prev => prev + 1)
+        playNotifSound()
+      }
+    )
+    .subscribe()
 
     return () => supabase.removeChannel(channel)
   }, [])
