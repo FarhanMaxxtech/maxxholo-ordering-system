@@ -1,0 +1,57 @@
+/* ── Tracking ID display ── */
+.tracking-id-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  gap: 10px;
+}
+.tracking-id-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.tracking-id-label {
+  font-size: 11px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.tracking-id-number {
+  font-family: monospace;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: 1px;
+}
+.tracking-id-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.tracking-action-btn {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .15s;
+}
+.tracking-action-btn:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.tracking-action-btn.regen:hover {
+  background: var(--amber);
+  border-color: var(--amber);
+  color: #fff;
+}
