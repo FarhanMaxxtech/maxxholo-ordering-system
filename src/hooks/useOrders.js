@@ -17,12 +17,12 @@ async function generateInvoiceNumber() {
 
 // ── Send notification helper ──
 async function sendNotification(message, userEmail = null) {
-  const { data, error } = await supabase.from('notifications').insert({ 
-    message, 
+  const { error } = await supabase.from('notifications').insert({
+    message,
     read: false,
     user_email: userEmail
   })
-  console.log('Notification insert:', { data, error, message, userEmail })
+  if (error) console.error('Notification error:', error)
 }
 
 export function useOrders() {
@@ -58,7 +58,7 @@ export function useOrders() {
         .insert({ ...rec, submitted_by: submittedBy, order_number, status: 'In Production' })
       if (error) throw new Error(error.message)
 
-      // ── Notify new order submitted ──
+      // ── Notify admin about new order (broadcast to all) ──
       await sendNotification(
         `📋 New order ${order_number} submitted — ${rec.brand} (${rec.company})`
       )
@@ -67,37 +67,32 @@ export function useOrders() {
   }
 
   async function updateStatus(id, status) {
-    // Get the order details first for the notification message
     const order = orders.find(o => o.id === id)
 
     const { error } = await supabase.from('orders').update({ status }).eq('id', id)
     if (error) throw new Error(error.message)
 
-    // ── Notify status change ──
-    if (order) {
+    // ── Only notify real users, not imported orders ──
+    const targetEmail = order?.submitted_by && order.submitted_by !== 'import'
+      ? order.submitted_by
+      : null
+
+    if (order && targetEmail) {
       const statusEmoji = {
         'In Production': '🏭',
         'Shipped':       '🚚',
         'Completed':     '✅',
       }
-      // With this — sends to the order owner specifically:
-      // Only notify if order has a real user (not imported)
-      const targetEmail = order.submitted_by && order.submitted_by !== 'import' 
-        ? order.submitted_by 
-        : null
-      
-      if (targetEmail) {
-        await sendNotification(
-          `${statusEmoji[status] || '📦'} Your order ${order.order_number} — ${order.brand} is now ${status}`,
-          targetEmail
-        )
-      }
+      await sendNotification(
+        `${statusEmoji[status] || '📦'} Your order ${order.order_number} — ${order.brand} is now ${status}`,
+        targetEmail
+      )
     }
+
     setOrders(prev => prev.map(o => (o.id === id ? { ...o, status } : o)))
   }
 
   async function saveAdmin(id, { status, factory_out, admin_note, courier, tracking_number }) {
-    // Get order before update for notification
     const order = orders.find(o => o.id === id)
     const prevStatus = order?.status
 
@@ -107,25 +102,32 @@ export function useOrders() {
       .eq('id', id)
     if (error) throw new Error(error.message)
 
+    // ── Only notify real users, not imported orders ──
+    const targetEmail = order?.submitted_by && order.submitted_by !== 'import'
+      ? order.submitted_by
+      : null
+
     // ── Notify if status changed ──
-    if (order && prevStatus !== status) {
+    if (order && prevStatus !== status && targetEmail) {
       const statusEmoji = {
         'In Production': '🏭',
         'Shipped':       '🚚',
         'Completed':     '✅',
       }
       await sendNotification(
-        `${statusEmoji[status] || '📦'} Order ${order.order_number} — ${order.brand} updated to ${status}`
+        `${statusEmoji[status] || '📦'} Your order ${order.order_number} — ${order.brand} updated to ${status}`,
+        targetEmail
       )
     }
 
     // ── Notify if tracking number added ──
-    if (order && tracking_number && !order.tracking_number) {
+    if (order && tracking_number && !order.tracking_number && targetEmail) {
       await sendNotification(
         `📦 Tracking added for your order ${order.order_number} — ${order.brand}: ${tracking_number}`,
-        order.submitted_by
+        targetEmail
       )
     }
+
     await loadOrders()
   }
 
