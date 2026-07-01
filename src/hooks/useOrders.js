@@ -17,12 +17,12 @@ async function generateInvoiceNumber() {
 
 // ── Send notification helper ──
 async function sendNotification(message, userEmail = null) {
-  const { error } = await supabase.from('notifications').insert({ 
+  const { data, error } = await supabase.from('notifications').insert({ 
     message, 
     read: false,
     user_email: userEmail
   })
-  if (error) console.error('Notification error:', error)
+  console.log('Notification insert:', { data, error, message, userEmail })
 }
 
 export function useOrders() {
