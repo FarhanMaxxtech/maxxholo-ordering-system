@@ -108,7 +108,6 @@ export default function Header({ me, onNewOrder, onLogout }) {
     <header className="header">
       <div className="brand">
         <h1>Maxxholo Job Order System</h1>
-        <span className="header-sub">hologram &amp; QR security labels</span>
       </div>
 
       <div style={{ fontSize:10, color:'var(--muted)', textAlign:'center', width:'100%', paddingTop:4 }}>
@@ -156,7 +155,7 @@ export default function Header({ me, onNewOrder, onLogout }) {
 
         {!isAdmin && (
           <button className="btn ghost sm" onClick={onNewOrder}>
-            + New Job Order
+            + Job
           </button>
         )}
         <button className="btn ghost sm" onClick={onLogout}>

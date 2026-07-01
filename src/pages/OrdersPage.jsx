@@ -107,12 +107,6 @@ export default function OrdersPage({
 
   return (
     <>
-      <div className="note">
-        {isAdmin
-          ? 'Admin view — click any order to update its status and factory-out date.'
-          : 'Submit job orders here. Admin updates status after submission.'}
-      </div>
-
       {/* ── Toolbar ── */}
       <div className="toolbar">
         <input

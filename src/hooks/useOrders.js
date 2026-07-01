@@ -81,10 +81,17 @@ export function useOrders() {
         'Completed':     '✅',
       }
       // With this — sends to the order owner specifically:
-      await sendNotification(
-        `${statusEmoji[status] || '📦'} Your order ${order.order_number} — ${order.brand} is now ${status}`,
-        order.submitted_by  // ← targets the sales user who owns this order
-      )
+      // Only notify if order has a real user (not imported)
+      const targetEmail = order.submitted_by && order.submitted_by !== 'import' 
+        ? order.submitted_by 
+        : null
+      
+      if (targetEmail) {
+        await sendNotification(
+          `${statusEmoji[status] || '📦'} Your order ${order.order_number} — ${order.brand} is now ${status}`,
+          targetEmail
+        )
+      }
     }
     setOrders(prev => prev.map(o => (o.id === id ? { ...o, status } : o)))
   }
