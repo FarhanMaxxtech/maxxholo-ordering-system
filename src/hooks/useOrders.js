@@ -16,8 +16,12 @@ async function generateInvoiceNumber() {
 }
 
 // ── Send notification helper ──
-async function sendNotification(message) {
-  await supabase.from('notifications').insert({ message, read: false })
+async function sendNotification(message, userEmail = null) {
+  await supabase.from('notifications').insert({ 
+    message, 
+    read: false,
+    user_email: userEmail  // null = everyone sees it, email = only that user
+  })
 }
 
 export function useOrders() {
@@ -75,11 +79,12 @@ export function useOrders() {
         'Shipped':       '🚚',
         'Completed':     '✅',
       }
+      // With this — sends to the order owner specifically:
       await sendNotification(
-        `${statusEmoji[status] || '📦'} Order ${order.order_number} — ${order.brand} is now ${status}`
+        `${statusEmoji[status] || '📦'} Your order ${order.order_number} — ${order.brand} is now ${status}`,
+        order.submitted_by  // ← targets the sales user who owns this order
       )
     }
-
     setOrders(prev => prev.map(o => (o.id === id ? { ...o, status } : o)))
   }
 
@@ -109,10 +114,10 @@ export function useOrders() {
     // ── Notify if tracking number added ──
     if (order && tracking_number && !order.tracking_number) {
       await sendNotification(
-        `📦 Tracking added for ${order.order_number} — ${order.brand}: ${tracking_number}`
+        `📦 Tracking added for your order ${order.order_number} — ${order.brand}: ${tracking_number}`,
+        order.submitted_by
       )
     }
-
     await loadOrders()
   }
 

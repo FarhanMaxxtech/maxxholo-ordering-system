@@ -38,6 +38,7 @@ export default function Header({ me, onNewOrder, onLogout }) {
     const { data } = await supabase
       .from('notifications')
       .select('*')
+      .or(`user_email.eq.${me.email},user_email.is.null`)
       .order('created_at', { ascending: false })
       .limit(20)
     if (data) {
