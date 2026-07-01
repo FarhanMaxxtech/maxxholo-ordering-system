@@ -1,0 +1,51 @@
+/* ── Order number on card ── */
+.order-number {
+  font-size: 11px;
+  color: var(--muted);
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+  margin-top: 4px;
+}
+.order-number strong {
+  color: var(--text);
+  font-family: monospace;
+  font-size: 12px;
+}
+
+/* ── Order number badge in admin modal ── */
+.order-number-badge {
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 14px;
+  display: inline-block;
+}
+.order-number-badge strong {
+  color: var(--text);
+  font-family: monospace;
+  font-size: 13px;
+  margin-left: 4px;
+}
+
+/* ── Shipping section in admin modal ── */
+.shipping-section {
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+  margin-top: 4px;
+}
+.shipping-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-bottom: 12px;
+}
+.tracking-set {
+  font-size: 12px;
+  color: var(--green);
+  margin-top: 6px;
+}

@@ -1,0 +1,50 @@
+/* ── Tracking ── */
+.track-btn {
+  width: 100%;
+  background: transparent;
+  border: 1px dashed var(--line);
+  color: var(--muted);
+  padding: 7px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  text-align: left;
+  margin-top: 4px;
+  transition: background .15s;
+}
+.track-btn:hover {
+  background: var(--panel2);
+  color: var(--text);
+}
+.track-panel {
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.track-status {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.track-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  gap: 10px;
+}
+.track-label {
+  color: var(--muted);
+  flex-shrink: 0;
+}
+.track-notice {
+  font-size: 11px;
+  color: var(--amber);
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--line);
+}
