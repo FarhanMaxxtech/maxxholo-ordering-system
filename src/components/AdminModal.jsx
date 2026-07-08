@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-const STATUSES = ['In Production', 'Shipped', 'Completed']
+const STATUSES = ['Pending', 'In Production', 'Shipped', 'Completed']
 
 const COURIERS = [
   { value: '',      label: '— Select courier —' },
@@ -10,7 +10,7 @@ const COURIERS = [
 ]
 
 export default function AdminModal({ order: o, onSave, onDelete, onClose }) {
-  const [status,         setStatus]        = useState('In Production')
+  const [status,         setStatus]        = useState('Pending')
   const [factoryOut,     setFactoryOut]     = useState('')
   const [adminNote,      setAdminNote]      = useState('')
   const [courier,        setCourier]        = useState('')
@@ -21,7 +21,7 @@ export default function AdminModal({ order: o, onSave, onDelete, onClose }) {
 
   useEffect(() => {
     if (o) {
-      setStatus(o.status                  || 'In Production')
+      setStatus(o.status                  || 'Pending')
       setFactoryOut(o.factory_out         || '')
       setAdminNote(o.admin_note           || '')
       setCourier(o.courier                || '')

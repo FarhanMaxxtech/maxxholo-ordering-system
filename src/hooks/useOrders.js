@@ -55,7 +55,7 @@ export function useOrders() {
       const order_number = await generateInvoiceNumber()
       const { error } = await supabase
         .from('orders')
-        .insert({ ...rec, submitted_by: submittedBy, order_number, status: 'In Production' })
+        .insert({ ...rec, submitted_by: submittedBy, order_number, status: 'Pending' })
       if (error) throw new Error(error.message)
 
       // ── Notify admin about new order (broadcast to all) ──
@@ -64,6 +64,9 @@ export function useOrders() {
       )
     }
     await loadOrders()
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('maxxholo:notifications-updated'))
+    }
   }
 
   async function updateStatus(id, status) {

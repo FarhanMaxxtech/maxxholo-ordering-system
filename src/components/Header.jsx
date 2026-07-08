@@ -21,7 +21,7 @@ function playNotifSound() {
   }
 }
 
-export default function Header({ me, onNewOrder, onLogout }) {
+export default function Header({ me, theme, onToggleTheme, onNewOrder, onLogout }) {
   const isAdmin = me.role === 'admin'
 
   const [notifications, setNotifications] = useState([])
@@ -29,12 +29,8 @@ export default function Header({ me, onNewOrder, onLogout }) {
   const [unread,        setUnread]        = useState(0)
   const dropdownRef = useRef(null)
 
-  // ── Load existing notifications on mount ──
-  useEffect(() => {
-    fetchNotifications()
-  }, [])
-
   async function fetchNotifications() {
+    if (!me?.email) return
     const { data } = await supabase
       .from('notifications')
       .select('*')
@@ -47,27 +43,43 @@ export default function Header({ me, onNewOrder, onLogout }) {
     }
   }
 
+  // ── Load existing notifications when the signed-in user changes ──
+  useEffect(() => {
+    fetchNotifications()
+  }, [me?.email])
+
+  // ── Refresh notifications after an order save or other update event ──
+  useEffect(() => {
+    if (!me?.email) return
+
+    const handleRefresh = () => fetchNotifications()
+    window.addEventListener('maxxholo:notifications-updated', handleRefresh)
+    return () => window.removeEventListener('maxxholo:notifications-updated', handleRefresh)
+  }, [me?.email])
+
   // ── Real-time listener for new notifications ──
   useEffect(() => {
+    if (!me?.email) return
+
     const channel = supabase
-    .channel('notifications-channel')
-    .on(
-      'postgres_changes',
-      { event: 'INSERT', schema: 'public', table: 'notifications' },
-      (payload) => {
-        const newNotif = payload.new
-        // ── Only show if targeted to this user or broadcast to all ──
-        const isForMe = !newNotif.user_email || newNotif.user_email === me.email
-        if (!isForMe) return
-        setNotifications(prev => [newNotif, ...prev])
-        setUnread(prev => prev + 1)
-        playNotifSound()
-      }
-    )
-    .subscribe()
+      .channel(`notifications-channel-${me.email}`)
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'notifications' },
+        (payload) => {
+          const newNotif = payload.new
+          // ── Only show if targeted to this user or broadcast to all ──
+          const isForMe = !newNotif.user_email || newNotif.user_email === me.email
+          if (!isForMe) return
+          setNotifications(prev => [newNotif, ...prev])
+          setUnread(prev => prev + 1)
+          playNotifSound()
+        }
+      )
+      .subscribe()
 
     return () => supabase.removeChannel(channel)
-  }, [])
+  }, [me?.email])
 
   // ── Close dropdown when clicking outside ──
   useEffect(() => {
@@ -153,12 +165,15 @@ export default function Header({ me, onNewOrder, onLogout }) {
           )}
         </div>
 
+        <button className="btn ghost sm theme-toggle" onClick={onToggleTheme} title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}>
+          {theme === 'dark' ? '☀️ Light' : '🌙 Dark'}
+        </button>
         {!isAdmin && (
-          <button className="btn ghost sm" onClick={onNewOrder}>
+          <button className="btn ghost sm inline" onClick={onNewOrder}>
             + Job
           </button>
         )}
-        <button className="btn ghost sm" onClick={onLogout}>
+        <button className="btn ghost sm inline" onClick={onLogout}>
           Sign out
         </button>
       </div>

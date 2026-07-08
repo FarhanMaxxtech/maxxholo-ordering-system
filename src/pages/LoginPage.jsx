@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+import logo from '../assets/maxxholo1.jpg'
 
 export default function LoginPage() {
   const [username, setUsername] = useState('')
@@ -59,6 +60,9 @@ export default function LoginPage() {
   return (
     <div className="login-bg">
       <div className="login-card">
+        <div className="login-brand-top">
+          <img src={logo} alt="Maxxholo logo" className="login-brand-image" />
+        </div>
         <h2>Job Order System</h2>
         <div className="sub">Sign in with your username and password</div>
 

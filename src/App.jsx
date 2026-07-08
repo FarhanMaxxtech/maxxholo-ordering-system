@@ -11,9 +11,20 @@ export default function App() {
   const [me,         setMe]         = useState({ email: '', role: 'sales' })
   const [activeTab,  setActiveTab]  = useState('orders')
   const [authReady,  setAuthReady]  = useState(false)
+  const [theme,      setTheme]      = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('maxxholo-theme') || 'dark'
+    }
+    return 'dark'
+  })
   const [formOpen,   setFormOpen]   = useState(false)
   const [importOpen, setImportOpen] = useState(false)
   const sessionRef = useRef(null)
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+    localStorage.setItem('maxxholo-theme', theme)
+  }, [theme])
 
   // ── refs to call OrdersPage functions from App ──
   const refreshRef  = useRef(null)
@@ -104,6 +115,8 @@ export default function App() {
     <div>
       <Header
         me={me}
+        theme={theme}
+        onToggleTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
         onNewOrder={() => {
           setActiveTab('orders')
           setFormOpen(true)

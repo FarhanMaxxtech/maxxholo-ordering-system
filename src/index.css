@@ -4,6 +4,11 @@
     --orange:#ec5b2a; --green:#2ea36b; --amber:#d9882f; --blue:#2f7de1; --red:#c1453b; --slate:#5b6573;
     --radius:10px;
   }
+  [data-theme='light']{
+    --bg:#f4f6fb; --panel:#ffffff; --panel2:#eef2f7; --line:#d6dce7;
+    --text:#111827; --muted:#64748b; --accent:#2f7de1; --accent2:#4a90e8;
+    --orange:#ff7a1a; --green:#2ea36b; --amber:#ffbf47; --blue:#2f7de1; --red:#c1453b; --slate:#5b6573;
+  }
   *{box-sizing:border-box}
   body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
   header{background:var(--panel);border-bottom:1px solid var(--line);padding:14px 22px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20}
@@ -17,6 +22,7 @@
   .rolechip.sales{background:rgba(47,125,225,.18);color:#7cb0f0}
   .rolechip.admin{background:rgba(236,91,42,.18);color:#f0916e}
   .who{font-size:12px;color:var(--muted)}
+  .theme-toggle{display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;flex-direction:row}
   .wrap{max-width:1180px;margin:0 auto;padding:22px}
   .tabs{display:flex;gap:6px;margin-bottom:20px}
   .tab{background:var(--panel);border:1px solid var(--line);color:var(--muted);padding:9px 18px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500}
@@ -25,6 +31,7 @@
   .btn:hover{background:var(--accent2)}
   .btn.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
   .btn.ghost:hover{background:var(--panel2)}
+  .btn.ghost.inline{display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;flex-direction:row}
   .btn.sm{padding:5px 10px;font-size:12px}
   .btn.danger{background:transparent;border:1px solid var(--red);color:#e08a83}
   .btn.danger:hover{background:rgba(193,69,59,.12)}
@@ -47,9 +54,10 @@
   .badge{font-size:11px;padding:3px 9px;border-radius:6px;font-weight:600}
   .s-received{background:rgba(91,101,115,.2);color:#aab4c2}
   .s-confirmed{background:rgba(47,125,225,.18);color:#7cb0f0}
+  .s-pending{background:rgba(91,101,115,.22);color:#cfd6e1}
   .s-production{background:rgba(217,136,47,.18);color:#e6a85a}
-  .s-shipped{background:rgba(46,163,107,.18);color:#5fcf9a}
-  .s-completed{background:rgba(46,163,107,.28);color:#7fe0ad}
+  .s-shipped{background:rgba(236,91,42,.18);color:#f59b7a}
+  .s-completed{background:rgba(46,163,107,.22);color:#7fe0ad}
   .card .foot{display:flex;gap:6px;margin-top:4px;flex-wrap:wrap;align-items:center}
   .card select.statussel{background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:5px 8px;border-radius:6px;font-size:12px;flex:1}
   .submitted{font-size:11px;color:var(--muted)}
@@ -81,8 +89,8 @@
   /* Login */
   .login-bg{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--bg);z-index:100;padding:20px}
   .login-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:30px;width:100%;max-width:380px}
-  .login-logo{background:#fff;border-radius:10px;padding:12px 16px;display:flex;justify-content:center;margin-bottom:8px}
-  .login-logo img{height:30px}
+  .login-brand-top{display:flex;justify-content:center;align-items:center;margin-bottom:10px}
+  .login-brand-image{max-width:180px;width:100%;height:auto;display:block;object-fit:contain;border-radius:15px}
   .login-card h2{text-align:center;font-size:17px;margin:14px 0 2px}
   .login-card .sub{text-align:center;color:var(--muted);font-size:12px;margin-bottom:22px}
   .login-card .field input{padding:11px 12px}
@@ -109,23 +117,29 @@
 
 /* ── Tracking ── */
 .tracker-wrap{background:var(--panel2);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-top:4px}
-.tracker-bar{background:linear-gradient(135deg,#1a7a6e,#2a9d8f);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;gap:12px}
-.tracker-bar-label{font-size:9px;font-weight:700;color:rgba(255,255,255,.6);letter-spacing:.8px;text-transform:uppercase;margin-bottom:2px}
-.tracker-bar-value{font-size:12px;font-weight:600;color:#fff}
+.tracker-bar{padding:10px 14px;display:flex;justify-content:space-between;align-items:center;gap:12px;border-radius:10px 10px 0 0;border-bottom:1px solid var(--line)}
+.tracker-bar-pending{background:linear-gradient(135deg,rgba(91,101,115,.24),rgba(91,101,115,.16));color:var(--text)}
+.tracker-bar-production{background:#ffbf47;color:#7a4d00}
+.tracker-bar-shipped{background:#ff7a1a;color:#7a2600}
+.tracker-bar-completed{background:var(--green);color:#fff}
+.tracker-bar-label{font-size:9px;font-weight:700;color:inherit;opacity:.75;letter-spacing:.8px;text-transform:uppercase;margin-bottom:2px}
+.tracker-bar-value{font-size:12px;font-weight:600;color:inherit}
 .tracker-steps{display:flex;align-items:center;justify-content:space-between;padding:16px 20px}
 .tracker-step-row{display:flex;align-items:center;flex:1}
 .tracker-step-row:last-child{flex:0 0 auto}
 .tracker-step{display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0;min-width:70px}
 .tracker-circle{width:36px;height:36px;border-radius:50%;border:2px solid var(--line);background:var(--panel);display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--muted);position:relative;transition:all .3s;flex-shrink:0}
-.tracker-circle.done{background:#2a9d8f;border-color:#2a9d8f;color:#fff;font-weight:700}
-.tracker-circle.active{background:#fff;border-color:#2a9d8f;border-width:3px;box-shadow:0 0 0 4px rgba(42,157,143,.2)}
-.tracker-pulse{width:12px;height:12px;border-radius:50%;background:#2a9d8f;display:block;animation:pulse 1.5s infinite}
+.tracker-circle.done{background:#2ea36b;border-color:#2ea36b;color:#fff;font-weight:700}
+.tracker-circle.active{background:#fff;border-color:#2f7de1;border-width:3px;box-shadow:0 0 0 4px rgba(47,125,225,.16)}
+.tracker-circle.pending{background:var(--panel2);border-color:var(--line);color:var(--muted)}
+.tracker-pulse{width:12px;height:12px;border-radius:50%;background:#2f7de1;display:block;animation:pulse 1.5s infinite}
 @keyframes pulse{0%{transform:scale(1);opacity:1}50%{transform:scale(1.3);opacity:.7}100%{transform:scale(1);opacity:1}}
 .tracker-step-label{font-size:10px;color:var(--muted);text-align:center;white-space:nowrap;font-weight:500}
-.tracker-step-label.active{color:#2a9d8f;font-weight:700}
+.tracker-step-label.active{color:#2f7de1;font-weight:700}
 .tracker-step-label.done{color:var(--text);font-weight:600}
+.tracker-step-label.pending{color:var(--muted);font-weight:500}
 .tracker-line{flex:1;height:3px;background:var(--line);margin:0 4px;margin-bottom:22px;border-radius:2px;transition:background .3s}
-.tracker-line.done{background:#2a9d8f}
+.tracker-line.done{background:#2ea36b}
 
 /* ── Order number ── */
 .order-number{font-size:11px;color:var(--muted);padding-top:8px;border-top:1px solid var(--line);margin-top:4px}

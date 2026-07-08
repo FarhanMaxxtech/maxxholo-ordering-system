@@ -58,8 +58,19 @@ export default function OrdersPage({
     onExternalImportClose?.()
   }
 
-  // ── Filter ──
-  const filtered = orders.filter(o => {
+  // ── Filter + sort ──
+  const sortedOrders = [...orders].sort((a, b) => {
+    const statusOrder = { Pending: 0, 'In Production': 1, Shipped: 2, Completed: 3 }
+    const aOrder = statusOrder[a.status] ?? 99
+    const bOrder = statusOrder[b.status] ?? 99
+    if (aOrder !== bOrder) return aOrder - bOrder
+
+    const aDate = new Date(a.created_at || 0).getTime()
+    const bDate = new Date(b.created_at || 0).getTime()
+    return bDate - aDate
+  })
+
+  const filtered = sortedOrders.filter(o => {
     const blob = [o.pic, o.brand, o.company, o.serial, o.product, o.domain]
       .join(' ').toLowerCase()
 
@@ -69,9 +80,9 @@ export default function OrdersPage({
 
     let matchDate = true
     if (dateFrom || dateTo) {
-      const factoryDate = o.factory_out ? o.factory_out.slice(0, 10) : ''
-      if (dateFrom && (!factoryDate || factoryDate < dateFrom)) matchDate = false
-      if (dateTo   && (!factoryDate || factoryDate > dateTo))   matchDate = false
+      const submittedDate = o.created_at ? o.created_at.slice(0, 10) : ''
+      if (dateFrom && (!submittedDate || submittedDate < dateFrom)) matchDate = false
+      if (dateTo   && (!submittedDate || submittedDate > dateTo))   matchDate = false
     }
 
     return matchQ && matchS && matchT && matchDate
@@ -118,6 +129,7 @@ export default function OrdersPage({
         {isAdmin && (
           <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}>
             <option value="">All statuses</option>
+            <option>Pending</option>
             <option>In Production</option>
             <option>Shipped</option>
             <option>Completed</option>
@@ -132,7 +144,7 @@ export default function OrdersPage({
 
       {/* ── Date filter ── */}
       <div className="date-filter-bar">
-        <span className="date-filter-label">📅 Filter by factory out date:</span>
+        <span className="date-filter-label">📅 Filter by submitted date:</span>
         <div className="date-filter-inputs">
           <div className="date-filter-group">
             <label>From</label>

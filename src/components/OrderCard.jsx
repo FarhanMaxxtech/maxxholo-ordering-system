@@ -1,6 +1,6 @@
 import StatusBadge from './StatusBadge'
 
-const STATUSES = ['In Production', 'Shipped', 'Completed']
+const STATUSES = ['Pending', 'In Production', 'Shipped', 'Completed']
 
 const COURIER_LABELS = {
   'fedex': 'FedEx',
@@ -15,9 +15,10 @@ const COURIER_TRACKING_URL = {
 }
 
 const STEPS = [
+  { key: 'Pending',       label: 'Pending',       icon: '⏳' },
   { key: 'In Production', label: 'In Production', icon: '🏭' },
-  { key: 'Shipped',       label: 'Shipped',       icon: '⏳' },
-  { key: 'Completed',     label: 'Completed',     icon: '⏳' },
+  { key: 'Shipped',       label: 'Shipped',       icon: '📦' },
+  { key: 'Completed',     label: 'Completed',     icon: '✓' },
 ]
 
 function getStepIndex(status) {
@@ -76,12 +77,14 @@ export default function OrderCard({ order: o, isAdmin, onQuickStatus, onManage }
             <span style={{ fontFamily:'monospace', fontSize:11 }}>{o.tracking_number}</span>
           </>
         )}
+        <b>Remark</b>
+        <span style={{ whiteSpace:'pre-wrap' }}>{o.remark ? o.remark : '—'}</span>
       </div>
 
       {/* ── Horizontal Progress Tracker ── */}
       <div className="tracker-wrap">
         {/* Info bar */}
-        <div className="tracker-bar">
+        <div className={`tracker-bar ${o.status === 'Pending' ? 'tracker-bar-pending' : o.status === 'In Production' ? 'tracker-bar-production' : o.status === 'Shipped' ? 'tracker-bar-shipped' : 'tracker-bar-completed'}`}>
           <div>
             <div className="tracker-bar-label">SHIPPED VIA</div>
             <div className="tracker-bar-value">
@@ -92,7 +95,7 @@ export default function OrderCard({ order: o, isAdmin, onQuickStatus, onManage }
             <div className="tracker-bar-label">STATUS</div>
             <div className="tracker-bar-value">{o.status || 'In Production'}</div>
           </div>
-          {o.factory_out && (
+          {o.factory_out && o.factory_out !== '0000-00-00' && o.factory_out !== '0000-00-00 00:00:00' && (
             <div style={{ textAlign:'right' }}>
               <div className="tracker-bar-label">EST. OUT</div>
               <div className="tracker-bar-value">{o.factory_out}</div>
@@ -102,33 +105,38 @@ export default function OrderCard({ order: o, isAdmin, onQuickStatus, onManage }
 
         {/* Horizontal steps */}
         <div className="tracker-steps">
-          {STEPS.map((step, i) => {
-            const done   = i < currentStep
-            const active = i === currentStep
-            const isLast = i === STEPS.length - 1
+          {(() => {
+            const visibleSteps = STEPS.slice(1)
+            const displayStep = o.status === 'Pending' ? -1 : (o.status === 'In Production' ? 0 : o.status === 'Shipped' ? 1 : 2)
 
-            return (
-              <div key={step.key} className="tracker-step-row">
-                {/* Circle + label */}
-                <div className="tracker-step">
-                  <div className={`tracker-circle ${done ? 'done' : ''} ${active ? 'active' : ''}`}>
-                    {done                                    && <span>✓</span>}
-                      {active && o.status !== 'Completed'      && <span className="tracker-pulse" />}
-                      {active && o.status === 'Completed'      && <span>✓</span>}
-                      {!done && !active                        && <span style={{ fontSize:16 }}>{step.icon}</span>}
+            return visibleSteps.map((step, i) => {
+              const done   = i < displayStep
+              const active = i === displayStep
+              const isLast = i === visibleSteps.length - 1
+
+              return (
+                <div key={step.key} className="tracker-step-row">
+                  {/* Circle + label */}
+                  <div className="tracker-step">
+                    <div className={`tracker-circle ${done ? 'done' : ''} ${active ? 'active' : ''}`}>
+                      {done && <span>✓</span>}
+                      {active && o.status !== 'Completed' && <span className="tracker-pulse" />}
+                      {active && o.status === 'Completed' && <span>✓</span>}
+                      {!done && !active && <span style={{ fontSize:16 }}>⏳</span>}
+                    </div>
+                    <div className={`tracker-step-label ${active ? 'active' : ''} ${done ? 'done' : ''}`}>
+                      {done ? `✓ ${step.label}` : step.label}
+                    </div>
                   </div>
-                  <div className={`tracker-step-label ${active ? 'active' : ''} ${done ? 'done' : ''}`}>
-                    {done && '✓ '}{step.label}
-                  </div>
+
+                  {/* Horizontal line between steps */}
+                  {!isLast && (
+                    <div className={`tracker-line ${done ? 'done' : ''}`} />
+                  )}
                 </div>
-
-                {/* Horizontal line between steps */}
-                {!isLast && (
-                  <div className={`tracker-line ${done ? 'done' : ''}`} />
-                )}
-              </div>
-            )
-          })}
+              )
+            })
+          })()}
         </div>
       </div>
 
