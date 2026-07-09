@@ -10,7 +10,8 @@
     --orange:#ff7a1a; --green:#2ea36b; --amber:#ffbf47; --blue:#2f7de1; --red:#c1453b; --slate:#5b6573;
   }
   *{box-sizing:border-box}
-  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
+  html,body,#root{width:100%;max-width:100%;overflow-x:hidden}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;min-height:100vh}
   header{background:var(--panel);border-bottom:1px solid var(--line);padding:14px 22px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20}
   .brand{display:flex;align-items:center;gap:12px}
   .logochip{background:#fff;border-radius:8px;padding:6px 10px;display:flex;align-items:center;height:38px}
@@ -23,7 +24,7 @@
   .rolechip.admin{background:rgba(236,91,42,.18);color:#f0916e}
   .who{font-size:12px;color:var(--muted)}
   .theme-toggle{display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;flex-direction:row}
-  .wrap{max-width:1180px;margin:0 auto;padding:22px}
+  .wrap{max-width:1180px;width:100%;margin:0 auto;padding:22px;overflow-x:hidden}
   .tabs{display:flex;gap:6px;margin-bottom:0;align-items:center}
   .tab{background:var(--panel);border:1px solid var(--line);color:var(--muted);padding:9px 18px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;display:inline-flex;align-items:center;justify-content:center}
   .tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
@@ -244,18 +245,13 @@
   }
 
   /* Tabs */
-  .tabs-row {
-    align-items: center;
-  }
-  .tabs-row .tabs {
+  .tabs {
     gap: 4px;
-    margin-bottom: 0;
+    margin-bottom: 12px;
   }
   .tab {
-    height: 34px;
-    padding: 0 12px;
+    padding: 7px 12px;
     font-size: 12px;
-    box-sizing: border-box;
   }
 
   /* Toolbar */
