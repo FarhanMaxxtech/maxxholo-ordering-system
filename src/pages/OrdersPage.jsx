@@ -24,6 +24,7 @@ export default function OrdersPage({
   const [filterType,   setFilterType]   = useState('')
   const [dateFrom,     setDateFrom]     = useState('')
   const [dateTo,       setDateTo]       = useState('')
+  const [viewMode,     setViewMode]     = useState('orders')
   const [formOpen,     setFormOpen]     = useState(false)
   const [editOrder,    setEditOrder]    = useState(null)
   const [adminOpen,    setAdminOpen]    = useState(false)
@@ -82,7 +83,11 @@ export default function OrdersPage({
       if (dateTo   && (!submittedDate || submittedDate > dateTo))   matchDate = false
     }
 
-    return matchQ && matchS && matchT && matchDate
+    const matchView = viewMode === 'history'
+      ? o.status === 'Completed'
+      : ['Pending','In Production','Shipped'].includes(o.status)
+
+    return matchQ && matchS && matchT && matchDate && matchView
   })
 
   async function handleSaveOrder(formData, id) {
@@ -117,21 +122,34 @@ export default function OrdersPage({
     <>
       {/* ── Toolbar ── */}
       <div className="toolbar">
+        <div style={{ display:'flex', gap:8, alignItems:'center', flexWrap:'wrap' }}>
+          <button
+            className={`btn sm ${viewMode === 'orders' ? 'active' : 'ghost'}`}
+            onClick={() => setViewMode('orders')}
+          >
+            Orders
+          </button>
+          <button
+            className={`btn sm ${viewMode === 'history' ? 'active' : 'ghost'}`}
+            onClick={() => setViewMode('history')}
+          >
+            History
+          </button>
+        </div>
+
         <input
           className="search"
           placeholder="Search brand, company, sales PIC, serial..."
           value={search}
           onChange={e => setSearch(e.target.value)}
         />
-        {isAdmin && (
-          <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}>
-            <option value="">All statuses</option>
-            <option>Pending</option>
-            <option>In Production</option>
-            <option>Shipped</option>
-            <option>Completed</option>
-          </select>
-        )}
+        <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}>
+          <option value="">All statuses</option>
+          <option>Pending</option>
+          <option>In Production</option>
+          <option>Shipped</option>
+          <option>Completed</option>
+        </select>
         <select value={filterType} onChange={e => setFilterType(e.target.value)}>
           <option value="">All types</option>
           <option value="NEW ORDER">New Order</option>
