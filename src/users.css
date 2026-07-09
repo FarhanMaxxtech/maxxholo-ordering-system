@@ -3,12 +3,9 @@
   border: 1px solid var(--line);
   border-radius: 10px;
   overflow: hidden;
-  width: 100%;
 }
 .users-table {
   width: 100%;
-  display: table;
-  table-layout: fixed;
   border-collapse: collapse;
   font-size: 13px;
 }

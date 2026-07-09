@@ -22,9 +22,6 @@ export default function OrdersPage({
 
   const [search,       setSearch]       = useState('')
   const [filterStatus, setFilterStatus] = useState('')
-  const [filterType,   setFilterType]   = useState('')
-  const [dateFrom,     setDateFrom]     = useState('')
-  const [dateTo,       setDateTo]       = useState('')
   const [formOpen,     setFormOpen]     = useState(false)
   const [editOrder,    setEditOrder]    = useState(null)
   const [adminOpen,    setAdminOpen]    = useState(false)
@@ -79,20 +76,12 @@ export default function OrdersPage({
 
     const matchQ = !search       || blob.includes(search.toLowerCase())
     const matchS = !filterStatus || o.status     === filterStatus
-    const matchT = !filterType   || o.order_type === filterType
-
-    let matchDate = true
-    if (dateFrom || dateTo) {
-      const submittedDate = o.created_at ? o.created_at.slice(0, 10) : ''
-      if (dateFrom && (!submittedDate || submittedDate < dateFrom)) matchDate = false
-      if (dateTo   && (!submittedDate || submittedDate > dateTo))   matchDate = false
-    }
 
     const matchView = viewMode === 'history'
       ? o.status === 'Completed'
       : ['Pending','In Production','Shipped'].includes(o.status)
 
-    return matchQ && matchS && matchT && matchDate && matchView
+    return matchQ && matchS && matchView
   })
 
   async function handleSaveOrder(formData, id) {
@@ -144,36 +133,6 @@ export default function OrdersPage({
           <option>In Production</option>
           <option>Shipped</option>
         </select>
-        <select value={filterType} onChange={e => setFilterType(e.target.value)}>
-          <option value="">All types</option>
-          <option value="NEW ORDER">New Order</option>
-          <option value="REPEAT ORDER">Repeat Order</option>
-        </select>
-      </div>
-
-      {/* ── Date filter ── */}
-      <div className="date-filter-bar">
-        <span className="date-filter-label">📅 Filter by submitted date:</span>
-        <div className="date-filter-inputs">
-          <div className="date-filter-group">
-            <label>From</label>
-            <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} />
-          </div>
-          <div className="date-filter-group">
-            <label>To</label>
-            <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} />
-          </div>
-          {(dateFrom || dateTo) && (
-            <button className="btn ghost sm" onClick={() => { setDateFrom(''); setDateTo('') }}>
-              ✕ Clear
-            </button>
-          )}
-        </div>
-        {(dateFrom || dateTo) && (
-          <span className="date-filter-count">
-            {filtered.length} order{filtered.length !== 1 ? 's' : ''} found
-          </span>
-        )}
       </div>
 
       {/* ── Cards ── */}

@@ -123,7 +123,7 @@ export default function OrderCard({ order: o, isAdmin, onQuickStatus, onManage }
                       {done && <span>✓</span>}
                       {active && o.status !== 'Completed' && <span className="tracker-pulse" />}
                       {active && o.status === 'Completed' && <span>✓</span>}
-                      {!done && !active && <span style={{ fontSize:16 }}>⏳</span>}
+                      {!done && !active && <span style={{ fontSize:16 }}>{step.icon}</span>}
                     </div>
                     <div className={`tracker-step-label ${active ? 'active' : ''} ${done ? 'done' : ''}`}>
                       {done ? `✓ ${step.label}` : step.label}

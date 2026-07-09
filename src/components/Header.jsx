@@ -119,16 +119,16 @@ export default function Header({ me, theme, onToggleTheme, onNewOrder, onLogout 
 
   return (
     <header className="header">
-      <div className="brand" style={{ display:'flex', alignItems:'center', gap:8 }}>
+      <div className="brand" style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:4 }}>
         <div className="logochip">
-          <img src={logo} alt="Maxxholo logo" style={{ height: 20, width: 'auto' }} />
+          <img src={logo} alt="Maxxholo logo" style={{ height: 15, width: 'auto' }} />
         </div>
-        <div style={{ fontSize:12, color:'var(--muted)', whiteSpace:'nowrap' }}>
+        <div style={{ fontSize:10, color:'var(--muted)', whiteSpace:'nowrap', textAlign:'center' }}>
           Job Order System
         </div>
       </div>
 
-      <div style={{ fontSize:15, color:'var(--muted)', textAlign:'center', width:'100%', paddingTop:4 }}>
+      <div className="header-center-title">
         Maxxtech
       </div>
 
@@ -172,7 +172,7 @@ export default function Header({ me, theme, onToggleTheme, onNewOrder, onLogout 
         </div>
 
         <button className="btn ghost sm theme-toggle" onClick={onToggleTheme} title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}>
-          {theme === 'dark' ? '☀️ Light' : '🌙 Dark'}
+          {theme === 'dark' ? '☀️' : '🌙'}
         </button>
         {!isAdmin && (
           <button className="btn ghost sm inline" onClick={onNewOrder}>
