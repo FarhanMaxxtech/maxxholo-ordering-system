@@ -144,12 +144,6 @@ export default function App() {
           {activeTab === 'orders' && (
             <div className="tab-actions">
               <button
-                className={`btn ghost sm ${viewMode === 'orders' ? 'active' : ''}`}
-                onClick={() => setViewMode('orders')}
-              >
-                Orders
-              </button>
-              <button
                 className={`btn ghost sm ${viewMode === 'history' ? 'active' : ''}`}
                 onClick={() => setViewMode('history')}
               >
