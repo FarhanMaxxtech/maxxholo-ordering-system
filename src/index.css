@@ -42,8 +42,8 @@
   .toolbar input.search{flex:1;min-width:200px}
   .spacer{flex:1}
 
-  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;gap:10px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px;grid-auto-rows:1fr}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;gap:10px;height:100%}
   .card .top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
   .card .brandname{font-size:15px;font-weight:600}
   .card .company{font-size:12px;color:var(--muted)}
@@ -61,7 +61,7 @@
   .s-production{background:rgba(217,136,47,.18);color:#e6a85a}
   .s-shipped{background:rgba(236,91,42,.18);color:#f59b7a}
   .s-completed{background:rgba(46,163,107,.22);color:#7fe0ad}
-  .card .foot{display:flex;gap:6px;margin-top:4px;flex-wrap:wrap;align-items:center}
+  .card .foot{display:flex;gap:6px;margin-top:4px;flex-wrap:wrap;align-items:center;margin-top:auto}
   .card select.statussel{background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:5px 8px;border-radius:6px;font-size:12px;flex:1}
   .submitted{font-size:11px;color:var(--muted)}
   .empty{text-align:center;color:var(--muted);padding:60px 20px}
