@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
+import logo from '../assets/maxxholo1.jpg'
 
 // Simple beep using Web Audio API — no external file needed
 function playNotifSound() {
@@ -119,11 +120,13 @@ export default function Header({ me, theme, onToggleTheme, onNewOrder, onLogout 
   return (
     <header className="header">
       <div className="brand">
-        <h1>Maxxholo Job Order System</h1>
+        <div className="logochip">
+          <img src={logo} alt="Maxxholo logo" />
+        </div>
       </div>
 
-      <div style={{ fontSize:10, color:'var(--muted)', textAlign:'center', width:'100%', paddingTop:4 }}>
-        Powered by Maxxtech Systems Sdn Bhd
+      <div style={{ fontSize:12, color:'var(--muted)', textAlign:'center', width:'100%', paddingTop:4 }}>
+        Maxxholo Job Order System
       </div>
 
       <div className="headright">
