@@ -119,14 +119,17 @@ export default function Header({ me, theme, onToggleTheme, onNewOrder, onLogout 
 
   return (
     <header className="header">
-      <div className="brand">
+      <div className="brand" style={{ display:'flex', alignItems:'center', gap:8 }}>
         <div className="logochip">
           <img src={logo} alt="Maxxholo logo" style={{ height: 20, width: 'auto' }} />
+        </div>
+        <div style={{ fontSize:12, color:'var(--muted)', whiteSpace:'nowrap' }}>
+          Job Order System
         </div>
       </div>
 
       <div style={{ fontSize:15, color:'var(--muted)', textAlign:'center', width:'100%', paddingTop:4 }}>
-        Maxxtech Job Order System
+        Maxxtech
       </div>
 
       <div className="headright">
