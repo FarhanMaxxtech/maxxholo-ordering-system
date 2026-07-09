@@ -112,7 +112,7 @@ export default function App() {
   ]
 
   return (
-    <div>
+    <div style={{ width:'100%', maxWidth:'100%', overflowX:'hidden' }}>
       <Header
         me={me}
         theme={theme}
@@ -144,24 +144,10 @@ export default function App() {
             <div className="tab-actions">
               <button
                 className="tab-action-btn"
-                onClick={() => setImportOpen(true)}
-                title="Import Excel"
-              >
-                📥
-              </button>
-              <button
-                className="tab-action-btn"
                 onClick={() => refreshRef.current?.()}
                 title="Refresh"
               >
                 ↻
-              </button>
-              <button
-                className="tab-action-btn"
-                onClick={() => exportRef.current?.()}
-                title="Export CSV"
-              >
-                📤
               </button>
             </div>
           )}
