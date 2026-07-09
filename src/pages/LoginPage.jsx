@@ -29,19 +29,30 @@ export default function LoginPage() {
 
     setLoading(true)
     try {
-      const { data: email, error: rpcErr } = await supabase.rpc(
-        'email_for_username',
-        { p_username: username.trim().toLowerCase() }
-      )
-      if (rpcErr) { setError('Lookup failed: ' + rpcErr.message); return }
-      if (!email)  { setError('Unknown username.'); return }
+      const normalizedUsername = username.trim().toLowerCase()
+      const { data: account, error: accountErr } = await supabase
+        .from('app_accounts')
+        .select('email, username')
+        .eq('username', normalizedUsername)
+        .maybeSingle()
+
+      if (accountErr) {
+        setError('Lookup failed: ' + accountErr.message)
+        return
+      }
+      if (!account?.email) {
+        setError('Unknown username.')
+        return
+      }
 
       const { error: signInErr } = await supabase.auth.signInWithPassword({
-        email,
+        email: account.email,
         password,
       })
-      if (signInErr) { setError('Wrong username or password.'); return }
-
+      if (signInErr) {
+        setError('Wrong username or password.')
+        return
+      }
     } finally {
       setLoading(false)
     }
