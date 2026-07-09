@@ -107,10 +107,10 @@ export default function App() {
   const isAdmin = me.role === 'admin'
 
   const tabs = [
-    { key: 'orders',    label: 'Orders' },
-    { key: 'dashboard', label: 'Dashboard' },
+    { key: 'orders',    label: '📦 Orders' },
+    { key: 'dashboard', label: '📊 Dashboard' },
     ...(isAdmin ? [{ key: 'users', label: '👥 Users' }] : []),
-    { key: 'history',   label: 'History' },
+    { key: 'history',   label: '🕘 History' },
   ]
 
   return (
