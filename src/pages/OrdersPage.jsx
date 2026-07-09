@@ -50,6 +50,11 @@ export default function OrdersPage({
     if (externalImportOpen) setImportOpen(true)
   }, [externalImportOpen])
 
+  // ── Clear status filter when switching to History, since completed is not available there ──
+  useEffect(() => {
+    if (viewMode === 'history') setFilterStatus('')
+  }, [viewMode])
+
   function handleFormClose() {
     setFormOpen(false)
     onExternalFormClose?.()
@@ -128,12 +133,16 @@ export default function OrdersPage({
           value={search}
           onChange={e => setSearch(e.target.value)}
         />
-        <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}>
+        <select
+          value={filterStatus}
+          onChange={e => setFilterStatus(e.target.value)}
+          disabled={viewMode === 'history'}
+          title={viewMode === 'history' ? 'Status filter is disabled in History view' : ''}
+        >
           <option value="">All statuses</option>
           <option>Pending</option>
           <option>In Production</option>
           <option>Shipped</option>
-          <option>Completed</option>
         </select>
         <select value={filterType} onChange={e => setFilterType(e.target.value)}>
           <option value="">All types</option>
