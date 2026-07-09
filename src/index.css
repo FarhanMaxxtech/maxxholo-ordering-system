@@ -225,7 +225,7 @@
   .notif-wrap{position:relative;display:flex;justify-content:center}
   .notif-dropdown{
     right:auto;
-    left:200%;
+    left:50%;
     transform:translateX(-50%);
     width:min(320px,calc(100vw - 24px));
   }
@@ -236,6 +236,9 @@
     flex-wrap: wrap;
     gap: 8px;
   }
+  .brand{flex:0 0 auto}
+  .headright{flex:0 0 auto}
+  .header > div:nth-child(2){flex:1 1 auto}
   .brand h1 {
     font-size: 13px;
   }
@@ -256,6 +259,13 @@
 
   /* Slightly smaller card heights on narrow screens */
   .card{min-height:300px}
+
+  /* Skeleton for loading state */
+  .skeleton-card{background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.03) 50%, rgba(255,255,255,0.02));border:1px solid var(--line);border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;gap:10px;min-height:300px}
+  .skeleton-line{height:12px;background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.04));border-radius:6px}
+  .skeleton-line.short{width:30%}
+  .skeleton-line.medium{width:60%}
+  .skeleton-line.full{width:100%}
 
   /* Tabs */
   .tabs {

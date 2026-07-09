@@ -4,6 +4,7 @@ import OrderCard       from '../components/OrderCard'
 import OrderForm       from '../components/OrderForm'
 import AdminModal      from '../components/AdminModal'
 import ImportModal     from '../components/ImportModal'
+import SkeletonCard    from '../components/SkeletonCard'
 
 export default function OrdersPage({
   me,
@@ -165,10 +166,19 @@ export default function OrdersPage({
 
       {/* ── Cards ── */}
       <div className="cards">
-        {loading && <div className="empty">Loading…</div>}
+        {loading && (
+          <>
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
+          </>
+        )}
         {!loading && filtered.length === 0 && (
           <div className="empty">
-            No orders found.{!isAdmin && ' Click + New Job Order to add one.'}
+            <div style={{marginBottom:12}}>No orders found.</div>
+            {!isAdmin && (
+              <button className="btn" onClick={() => { setEditOrder(null); setFormOpen(true) }}>+ New Job Order</button>
+            )}
           </div>
         )}
         {!loading && filtered.map(o => (

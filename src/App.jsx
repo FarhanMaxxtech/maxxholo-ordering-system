@@ -82,6 +82,18 @@ export default function App() {
     return () => window.removeEventListener('popstate', blockBack)
   }, [session])
 
+  // Global keyboard shortcut: press 'n' to open New Job form (when not focused in input)
+  useEffect(() => {
+    function onKey(e){
+      if (e.key === 'n' && document.activeElement && /input|textarea|select/i.test(document.activeElement.tagName) === false) {
+        setFormOpen(true)
+        setActiveTab('orders')
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
+
   function applySession(session) {
     setSession(session)
     sessionRef.current = session
