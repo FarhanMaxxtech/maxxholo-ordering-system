@@ -4,6 +4,7 @@ import OrderCard       from '../components/OrderCard'
 import OrderForm       from '../components/OrderForm'
 import AdminModal      from '../components/AdminModal'
 import ImportModal     from '../components/ImportModal'
+import SkeletonCard    from '../components/SkeletonCard'
 
 export default function OrdersPage({
   me,
@@ -13,6 +14,7 @@ export default function OrdersPage({
   onExternalImportClose,
   onRegisterRefresh,
   onRegisterExport,
+  viewMode,
 }) {
   const isAdmin = me.role === 'admin'
 
@@ -20,9 +22,6 @@ export default function OrdersPage({
 
   const [search,       setSearch]       = useState('')
   const [filterStatus, setFilterStatus] = useState('')
-  const [filterType,   setFilterType]   = useState('')
-  const [dateFrom,     setDateFrom]     = useState('')
-  const [dateTo,       setDateTo]       = useState('')
   const [formOpen,     setFormOpen]     = useState(false)
   const [editOrder,    setEditOrder]    = useState(null)
   const [adminOpen,    setAdminOpen]    = useState(false)
@@ -48,6 +47,11 @@ export default function OrdersPage({
     if (externalImportOpen) setImportOpen(true)
   }, [externalImportOpen])
 
+  // ── Clear status filter when switching to History, since completed is not available there ──
+  useEffect(() => {
+    if (viewMode === 'history') setFilterStatus('')
+  }, [viewMode])
+
   function handleFormClose() {
     setFormOpen(false)
     onExternalFormClose?.()
@@ -59,12 +63,8 @@ export default function OrdersPage({
   }
 
   // ── Filter + sort ──
+  // Always sort by submitted date (created_at) newest first, regardless of status
   const sortedOrders = [...orders].sort((a, b) => {
-    const statusOrder = { Pending: 0, 'In Production': 1, Shipped: 2, Completed: 3 }
-    const aOrder = statusOrder[a.status] ?? 99
-    const bOrder = statusOrder[b.status] ?? 99
-    if (aOrder !== bOrder) return aOrder - bOrder
-
     const aDate = new Date(a.created_at || 0).getTime()
     const bDate = new Date(b.created_at || 0).getTime()
     return bDate - aDate
@@ -76,16 +76,12 @@ export default function OrdersPage({
 
     const matchQ = !search       || blob.includes(search.toLowerCase())
     const matchS = !filterStatus || o.status     === filterStatus
-    const matchT = !filterType   || o.order_type === filterType
 
-    let matchDate = true
-    if (dateFrom || dateTo) {
-      const submittedDate = o.created_at ? o.created_at.slice(0, 10) : ''
-      if (dateFrom && (!submittedDate || submittedDate < dateFrom)) matchDate = false
-      if (dateTo   && (!submittedDate || submittedDate > dateTo))   matchDate = false
-    }
+    const matchView = viewMode === 'history'
+      ? o.status === 'Completed'
+      : ['Pending','In Production','Shipped'].includes(o.status)
 
-    return matchQ && matchS && matchT && matchDate
+    return matchQ && matchS && matchView
   })
 
   async function handleSaveOrder(formData, id) {
@@ -126,53 +122,34 @@ export default function OrdersPage({
           value={search}
           onChange={e => setSearch(e.target.value)}
         />
-        {isAdmin && (
-          <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}>
-            <option value="">All statuses</option>
-            <option>Pending</option>
-            <option>In Production</option>
-            <option>Shipped</option>
-            <option>Completed</option>
-          </select>
-        )}
-        <select value={filterType} onChange={e => setFilterType(e.target.value)}>
-          <option value="">All types</option>
-          <option value="NEW ORDER">New Order</option>
-          <option value="REPEAT ORDER">Repeat Order</option>
+        <select
+          value={filterStatus}
+          onChange={e => setFilterStatus(e.target.value)}
+          disabled={viewMode === 'history'}
+          title={viewMode === 'history' ? 'Status filter is disabled in History view' : ''}
+        >
+          <option value="">All statuses</option>
+          <option>Pending</option>
+          <option>In Production</option>
+          <option>Shipped</option>
         </select>
-      </div>
-
-      {/* ── Date filter ── */}
-      <div className="date-filter-bar">
-        <span className="date-filter-label">📅 Filter by submitted date:</span>
-        <div className="date-filter-inputs">
-          <div className="date-filter-group">
-            <label>From</label>
-            <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} />
-          </div>
-          <div className="date-filter-group">
-            <label>To</label>
-            <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} />
-          </div>
-          {(dateFrom || dateTo) && (
-            <button className="btn ghost sm" onClick={() => { setDateFrom(''); setDateTo('') }}>
-              ✕ Clear
-            </button>
-          )}
-        </div>
-        {(dateFrom || dateTo) && (
-          <span className="date-filter-count">
-            {filtered.length} order{filtered.length !== 1 ? 's' : ''} found
-          </span>
-        )}
       </div>
 
       {/* ── Cards ── */}
       <div className="cards">
-        {loading && <div className="empty">Loading…</div>}
+        {loading && (
+          <>
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
+          </>
+        )}
         {!loading && filtered.length === 0 && (
           <div className="empty">
-            No orders found.{!isAdmin && ' Click + New Job Order to add one.'}
+            <div style={{marginBottom:12}}>No orders found.</div>
+            {!isAdmin && (
+              <button className="btn" onClick={() => { setEditOrder(null); setFormOpen(true) }}>+ New Job Order</button>
+            )}
           </div>
         )}
         {!loading && filtered.map(o => (

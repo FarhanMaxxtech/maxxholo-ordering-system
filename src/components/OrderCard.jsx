@@ -64,21 +64,22 @@ export default function OrderCard({ order: o, isAdmin, onQuickStatus, onManage }
 
       {/* ── Details ── */}
       <div className="meta">
-        <b>Product</b><span>{o.product}</span>
-        <b>Qty</b><span>{o.qty}{o.colour ? ` · ${o.colour}` : ''}</span>
-        <b>Sales</b><span>{o.pic}</span>
-        {o.serial      && <><b>Serial</b><span>{o.serial}</span></>}
-        {o.factory_out && <><b>Factory out</b><span>{o.factory_out}</span></>}
-        {hasTracking && (
-          <>
-            <b>Courier</b>
-            <span>{COURIER_LABELS[o.courier] || o.courier}</span>
-            <b>Tracking</b>
-            <span style={{ fontFamily:'monospace', fontSize:11 }}>{o.tracking_number}</span>
-          </>
-        )}
-        <b>Remark</b>
-        <span style={{ whiteSpace:'pre-wrap' }}>{o.remark ? o.remark : '—'}</span>
+        <b>Product</b><span>{o.product || '—'}</span>
+        <b>Qty</b><span>{(o.qty || o.qty === 0) ? `${o.qty}${o.colour ? ` · ${o.colour}` : ''}` : '—'}</span>
+        <b>Sales</b><span>{o.pic || '—'}</span>
+        <b>Serial</b><span>{o.serial || '—'}</span>
+        <b>Factory out</b>
+        <span>{(o.factory_out && o.factory_out !== '0000-00-00' && o.factory_out !== '0000-00-00 00:00:00') ? o.factory_out : '—'}</span>
+        <b>Courier</b><span>{o.courier ? (COURIER_LABELS[o.courier] || o.courier) : '—'}</span>
+        <b>Tracking</b><span>{o.tracking_number || '—'}</span>
+        <b>Remark</b><span style={{ whiteSpace:'pre-wrap' }}>{o.remark ? o.remark : '—'}</span>
+        <b>Reference</b>
+        <span>
+          {o.ref_link
+            ? (<a href={o.ref_link} target="_blank" rel="noreferrer">View reference</a>)
+            : '—'
+          }
+        </span>
       </div>
 
       {/* ── Horizontal Progress Tracker ── */}
@@ -122,7 +123,7 @@ export default function OrderCard({ order: o, isAdmin, onQuickStatus, onManage }
                       {done && <span>✓</span>}
                       {active && o.status !== 'Completed' && <span className="tracker-pulse" />}
                       {active && o.status === 'Completed' && <span>✓</span>}
-                      {!done && !active && <span style={{ fontSize:16 }}>⏳</span>}
+                      {!done && !active && <span style={{ fontSize:16 }}>{step.icon}</span>}
                     </div>
                     <div className={`tracker-step-label ${active ? 'active' : ''} ${done ? 'done' : ''}`}>
                       {done ? `✓ ${step.label}` : step.label}

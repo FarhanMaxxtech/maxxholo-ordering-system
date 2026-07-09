@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
+import logo from '../assets/maxxholo1.jpg'
 
 // Simple beep using Web Audio API — no external file needed
 function playNotifSound() {
@@ -118,12 +119,17 @@ export default function Header({ me, theme, onToggleTheme, onNewOrder, onLogout 
 
   return (
     <header className="header">
-      <div className="brand">
-        <h1>Maxxholo Job Order System</h1>
+      <div className="brand" style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:4 }}>
+        <div className="logochip">
+          <img src={logo} alt="Maxxholo logo" style={{ height: 15, width: 'auto' }} />
+        </div>
+        <div style={{ fontSize:10, color:'var(--muted)', whiteSpace:'nowrap', textAlign:'center' }}>
+          Job Order System
+        </div>
       </div>
 
-      <div style={{ fontSize:10, color:'var(--muted)', textAlign:'center', width:'100%', paddingTop:4 }}>
-        Powered by Maxxtech Systems Sdn Bhd
+      <div className="header-center-title">
+        Maxxtech
       </div>
 
       <div className="headright">
@@ -166,7 +172,7 @@ export default function Header({ me, theme, onToggleTheme, onNewOrder, onLogout 
         </div>
 
         <button className="btn ghost sm theme-toggle" onClick={onToggleTheme} title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}>
-          {theme === 'dark' ? '☀️ Light' : '🌙 Dark'}
+          {theme === 'dark' ? '☀️' : '🌙'}
         </button>
         {!isAdmin && (
           <button className="btn ghost sm inline" onClick={onNewOrder}>

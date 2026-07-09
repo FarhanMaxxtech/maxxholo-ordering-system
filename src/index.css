@@ -34,6 +34,7 @@
   .btn.ghost:hover{background:var(--panel2)}
   .btn.ghost.inline{display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;flex-direction:row}
   .btn.sm{padding:5px 10px;font-size:12px}
+  .btn.sm.active, .btn.sm.active:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
   .btn.danger{background:transparent;border:1px solid var(--red);color:#e08a83}
   .btn.danger:hover{background:rgba(193,69,59,.12)}
 
@@ -42,13 +43,24 @@
   .toolbar input.search{flex:1;min-width:200px}
   .spacer{flex:1}
 
-  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;gap:10px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px;grid-auto-rows:1fr}
+  /* Ensure consistent visual height across cards; responsive min-height */
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;gap:10px;height:100%;min-height:380px}
   .card .top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
   .card .brandname{font-size:15px;font-weight:600}
   .card .company{font-size:12px;color:var(--muted)}
   .card .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:12px}
   .card .meta b{color:var(--muted);font-weight:500}
+  .card .meta span{word-break:break-word}
+  .card .meta span a{color:var(--accent2);text-decoration:underline;word-break:break-all}
+  /* Clamp long reference links to avoid making a card much taller than others */
+  .card .meta span a{
+    display:-webkit-box;
+    line-clamp:2;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+  }
   .pill{font-size:11px;padding:3px 9px;border-radius:20px;font-weight:600;white-space:nowrap}
   .pill.new{background:rgba(47,125,225,.15);color:#7cb0f0}
   .pill.repeat{background:rgba(46,163,107,.15);color:#5fcf9a}
@@ -59,7 +71,7 @@
   .s-production{background:rgba(217,136,47,.18);color:#e6a85a}
   .s-shipped{background:rgba(236,91,42,.18);color:#f59b7a}
   .s-completed{background:rgba(46,163,107,.22);color:#7fe0ad}
-  .card .foot{display:flex;gap:6px;margin-top:4px;flex-wrap:wrap;align-items:center}
+  .card .foot{display:flex;gap:6px;margin-top:4px;flex-wrap:wrap;align-items:center;margin-top:auto}
   .card select.statussel{background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:5px 8px;border-radius:6px;font-size:12px;flex:1}
   .submitted{font-size:11px;color:var(--muted)}
   .empty{text-align:center;color:var(--muted);padding:60px 20px}
@@ -215,7 +227,7 @@
   .notif-wrap{position:relative;display:flex;justify-content:center}
   .notif-dropdown{
     right:auto;
-    left:200%;
+    left:50%;
     transform:translateX(-50%);
     width:min(320px,calc(100vw - 24px));
   }
@@ -223,8 +235,28 @@
   /* Header */
   header {
     padding: 10px 14px;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
     gap: 8px;
+    flex-wrap: nowrap;
+  }
+  .brand{
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+  }
+  .headright{
+    flex: 0 0 auto;
+    justify-self: end;
+  }
+  .header > div:nth-child(2){
+    flex: 1 1 auto;
+    justify-self: center;
+    padding-top: 0;
   }
   .brand h1 {
     font-size: 13px;
@@ -243,6 +275,16 @@
   .wrap {
     padding: 12px;
   }
+
+  /* Slightly smaller card heights on narrow screens */
+  .card{min-height:300px}
+
+  /* Skeleton for loading state */
+  .skeleton-card{background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.03) 50%, rgba(255,255,255,0.02));border:1px solid var(--line);border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;gap:10px;min-height:300px}
+  .skeleton-line{height:12px;background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.04));border-radius:6px}
+  .skeleton-line.short{width:30%}
+  .skeleton-line.medium{width:60%}
+  .skeleton-line.full{width:100%}
 
   /* Tabs */
   .tabs {

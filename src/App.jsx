@@ -19,6 +19,7 @@ export default function App() {
   })
   const [formOpen,   setFormOpen]   = useState(false)
   const [importOpen, setImportOpen] = useState(false)
+  const [viewMode,   setViewMode]   = useState('orders')
   const sessionRef = useRef(null)
 
   useEffect(() => {
@@ -106,9 +107,10 @@ export default function App() {
   const isAdmin = me.role === 'admin'
 
   const tabs = [
-    { key: 'orders',    label: 'Orders' },
-    { key: 'dashboard', label: 'Dashboard' },
+    { key: 'orders',    label: '📦 Orders' },
+    { key: 'dashboard', label: '📊 Dashboard' },
     ...(isAdmin ? [{ key: 'users', label: '👥 Users' }] : []),
+    { key: 'history',   label: '🕘 History' },
   ]
 
   return (
@@ -132,29 +134,23 @@ export default function App() {
               <div
                 key={t.key}
                 className={`tab ${activeTab === t.key ? 'active' : ''}`}
-                onClick={() => setActiveTab(t.key)}
+                onClick={() => {
+                  setActiveTab(t.key)
+                  if (t.key === 'history') {
+                    setViewMode('history')
+                  } else if (t.key === 'orders') {
+                    setViewMode('orders')
+                  }
+                }}
               >
                 {t.label}
               </div>
             ))}
           </div>
-
-          {/* ── Action buttons next to tabs ── */}
-          {activeTab === 'orders' && (
-            <div className="tab-actions">
-              <button
-                className="tab-action-btn"
-                onClick={() => refreshRef.current?.()}
-                title="Refresh"
-              >
-                ↻
-              </button>
-            </div>
-          )}
         </div>
 
         {/* ── Tab content ── */}
-        {activeTab === 'orders' && (
+        {(activeTab === 'orders' || activeTab === 'history') && (
           <OrdersPage
             me={me}
             externalFormOpen={formOpen}
@@ -163,6 +159,7 @@ export default function App() {
             onExternalImportClose={() => setImportOpen(false)}
             onRegisterRefresh={(fn) => { refreshRef.current = fn }}
             onRegisterExport={(fn)  => { exportRef.current  = fn }}
+            viewMode={viewMode}
           />
         )}
         {activeTab === 'dashboard' && <DashboardPage />}
