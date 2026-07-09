@@ -3,11 +3,16 @@
   border: 1px solid var(--line);
   border-radius: 10px;
   overflow: hidden;
+  width: 100%;
+  max-width: 100%;
+  background: var(--panel);
 }
 .users-table {
   width: 100%;
+  min-width: 0;
   border-collapse: collapse;
   font-size: 13px;
+  table-layout: fixed;
 }
 .users-table th {
   background: var(--panel2);
@@ -24,6 +29,9 @@
   padding: 12px 14px;
   border-bottom: 1px solid var(--line);
   vertical-align: middle;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .users-table tr:last-child td {
   border-bottom: none;
