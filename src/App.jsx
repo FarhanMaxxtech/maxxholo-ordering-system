@@ -19,6 +19,7 @@ export default function App() {
   })
   const [formOpen,   setFormOpen]   = useState(false)
   const [importOpen, setImportOpen] = useState(false)
+  const [viewMode,   setViewMode]   = useState('orders')
   const sessionRef = useRef(null)
 
   useEffect(() => {
@@ -82,18 +83,6 @@ export default function App() {
     return () => window.removeEventListener('popstate', blockBack)
   }, [session])
 
-  // Global keyboard shortcut: press 'n' to open New Job form (when not focused in input)
-  useEffect(() => {
-    function onKey(e){
-      if (e.key === 'n' && document.activeElement && /input|textarea|select/i.test(document.activeElement.tagName) === false) {
-        setFormOpen(true)
-        setActiveTab('orders')
-      }
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [])
-
   function applySession(session) {
     setSession(session)
     sessionRef.current = session
@@ -155,11 +144,16 @@ export default function App() {
           {activeTab === 'orders' && (
             <div className="tab-actions">
               <button
-                className="tab-action-btn"
-                onClick={() => refreshRef.current?.()}
-                title="Refresh"
+                className={`btn ghost sm ${viewMode === 'orders' ? 'active' : ''}`}
+                onClick={() => setViewMode('orders')}
               >
-                ↻
+                Orders
+              </button>
+              <button
+                className={`btn ghost sm ${viewMode === 'history' ? 'active' : ''}`}
+                onClick={() => setViewMode('history')}
+              >
+                History
               </button>
             </div>
           )}
@@ -175,6 +169,7 @@ export default function App() {
             onExternalImportClose={() => setImportOpen(false)}
             onRegisterRefresh={(fn) => { refreshRef.current = fn }}
             onRegisterExport={(fn)  => { exportRef.current  = fn }}
+            viewMode={viewMode}
           />
         )}
         {activeTab === 'dashboard' && <DashboardPage />}

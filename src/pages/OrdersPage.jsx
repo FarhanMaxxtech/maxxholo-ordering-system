@@ -14,6 +14,7 @@ export default function OrdersPage({
   onExternalImportClose,
   onRegisterRefresh,
   onRegisterExport,
+  viewMode,
 }) {
   const isAdmin = me.role === 'admin'
 
@@ -24,7 +25,6 @@ export default function OrdersPage({
   const [filterType,   setFilterType]   = useState('')
   const [dateFrom,     setDateFrom]     = useState('')
   const [dateTo,       setDateTo]       = useState('')
-  const [viewMode,     setViewMode]     = useState('orders')
   const [formOpen,     setFormOpen]     = useState(false)
   const [editOrder,    setEditOrder]    = useState(null)
   const [adminOpen,    setAdminOpen]    = useState(false)
@@ -122,21 +122,6 @@ export default function OrdersPage({
     <>
       {/* ── Toolbar ── */}
       <div className="toolbar">
-        <div style={{ display:'flex', gap:8, alignItems:'center', flexWrap:'wrap' }}>
-          <button
-            className={`btn sm ${viewMode === 'orders' ? 'active' : 'ghost'}`}
-            onClick={() => setViewMode('orders')}
-          >
-            Orders
-          </button>
-          <button
-            className={`btn sm ${viewMode === 'history' ? 'active' : 'ghost'}`}
-            onClick={() => setViewMode('history')}
-          >
-            History
-          </button>
-        </div>
-
         <input
           className="search"
           placeholder="Search brand, company, sales PIC, serial..."
