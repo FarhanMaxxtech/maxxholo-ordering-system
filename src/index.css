@@ -244,13 +244,18 @@
   }
 
   /* Tabs */
-  .tabs {
+  .tabs-row {
+    align-items: center;
+  }
+  .tabs-row .tabs {
     gap: 4px;
-    margin-bottom: 12px;
+    margin-bottom: 0;
   }
   .tab {
-    padding: 7px 12px;
+    height: 34px;
+    padding: 0 12px;
     font-size: 12px;
+    box-sizing: border-box;
   }
 
   /* Toolbar */
