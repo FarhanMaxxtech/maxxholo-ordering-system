@@ -59,12 +59,8 @@ export default function OrdersPage({
   }
 
   // ── Filter + sort ──
+  // Always sort by submitted date (created_at) newest first, regardless of status
   const sortedOrders = [...orders].sort((a, b) => {
-    const statusOrder = { Pending: 0, 'In Production': 1, Shipped: 2, Completed: 3 }
-    const aOrder = statusOrder[a.status] ?? 99
-    const bOrder = statusOrder[b.status] ?? 99
-    if (aOrder !== bOrder) return aOrder - bOrder
-
     const aDate = new Date(a.created_at || 0).getTime()
     const bDate = new Date(b.created_at || 0).getTime()
     return bDate - aDate
