@@ -1,15 +1,4 @@
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-}
-
-Deno.serve(async (req: Request) => {
-  // ── Handle browser preflight ──
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
-  }
-
+Deno.serve(async (req) => {
   try {
     const body = await req.json().catch(() => ({}))
     const type = body.type || 'new_order'
@@ -17,9 +6,7 @@ Deno.serve(async (req: Request) => {
     const recipientEmail = body.recipientEmail || null
     const status = body.status || order.status || ''
 
-    const resendApiKey = Deno.env.get('RESEND_API_KEY')
-    const fromAddress = 'Maxxholo Orders <onboarding@resend.dev>'
-    const to = recipientEmail ? [recipientEmail] : [Deno.env.get('ADMIN_EMAIL') || 'onboarding@resend.dev']
+    const to = recipientEmail ? [recipientEmail] : [Deno.env.get('ADMIN_EMAIL')]
     const subject = type === 'status_update'
       ? `📦 Order ${order.order_number || 'Update'} — ${status}`
       : `📦 New Order ${order.order_number || ''} — ${order.brand || '—'}`
@@ -32,18 +19,14 @@ Deno.serve(async (req: Request) => {
       ? `Your order ${order.order_number || '—'} is now ${status}.`
       : `A new job order has been submitted and is currently ${order.status || 'Pending'}.`
 
-    if (!resendApiKey) {
-      throw new Error('RESEND_API_KEY is not configured.')
-    }
-
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${resendApiKey}`,
+        'Authorization': `Bearer ${Deno.env.get('RESEND_API_KEY')}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: fromAddress,
+        from: 'Maxxholo Orders <orders@maxxholo.com>',
         to,
         subject,
         html: `
@@ -100,22 +83,17 @@ Deno.serve(async (req: Request) => {
       }),
     })
 
-    const data = await res.json().catch(() => ({}))
+    const data = await res.json()
     console.log('Resend response:', data)
 
-    if (!res.ok) {
-      throw new Error(data?.message || `Resend rejected the email request (${res.status}).`)
-    }
-
-    return new Response(JSON.stringify({ success: true, data }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    return new Response(JSON.stringify({ success: true }), {
+      headers: { 'Content-Type': 'application/json' },
     })
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : String(err)
+  } catch (err) {
     console.error('Error:', err)
-    return new Response(JSON.stringify({ error: message }), {
+    return new Response(JSON.stringify({ error: err.message }), {
       status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' },
     })
   }
 })

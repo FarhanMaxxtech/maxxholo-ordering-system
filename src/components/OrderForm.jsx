@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 const EMPTY = {
   pic: '', order_type: 'NEW ORDER', brand: '', company: '',
   product: 'Hologram with QR code', qty: '', colour: '',
-  serial: '', domain: '', wowcheck2u: '', ref_link: '', remark: '',
+  order_number: '', serial: '', domain: '', wowcheck2u: '', ref_link: '', remark: '',
 }
 
 export default function OrderForm({ order, onSave, onClose }) {
@@ -14,18 +14,19 @@ export default function OrderForm({ order, onSave, onClose }) {
   useEffect(() => {
     if (order) {
       setForm({
-        pic:        order.pic        || '',
-        order_type: order.order_type || 'NEW ORDER',
-        brand:      order.brand      || '',
-        company:    order.company    || '',
-        product:    order.product    || 'Hologram with QR code',
-        qty:        order.qty        || '',
-        colour:     order.colour     || '',
-        serial:     order.serial     || '',
-        domain:     order.domain     || '',
-        wowcheck2u: order.wowcheck2u || '',
-        ref_link:   order.ref_link   || '',
-        remark:     order.remark     || '',
+        pic:          order.pic          || '',
+        order_type:   order.order_type   || 'NEW ORDER',
+        brand:        order.brand        || '',
+        company:      order.company      || '',
+        product:      order.product      || 'Hologram with QR code',
+        qty:          order.qty          || '',
+        colour:       order.colour       || '',
+        order_number: order.order_number || '',
+        serial:       order.serial       || '',
+        domain:       order.domain       || '',
+        wowcheck2u:   order.wowcheck2u   || '',
+        ref_link:     order.ref_link     || '',
+        remark:       order.remark       || '',
       })
     } else {
       setForm(EMPTY)
@@ -38,8 +39,8 @@ export default function OrderForm({ order, onSave, onClose }) {
 
   async function handleSave() {
     setError('')
-    if (!form.pic || !form.brand || !form.company || !form.qty) {
-      setError('Please fill all required (*) fields.')
+    if (!form.pic || !form.brand || !form.company || !form.qty || !String(form.order_number || '').trim()) {
+      setError('Please fill all required (*) fields, including Invoice #.')
       return
     }
     setSaving(true)
@@ -59,7 +60,7 @@ export default function OrderForm({ order, onSave, onClose }) {
         <h2>{order ? 'Edit Job Order' : 'New Job Order'}</h2>
         <div className="hint">
           Fields marked <span style={{ color: 'var(--red)' }}>*</span> are required.
-          An order number will be automatically generated upon submission.
+          Invoice # must be filled in before submitting or saving the order.
         </div>
 
         <div className="grid2">
@@ -117,9 +118,14 @@ export default function OrderForm({ order, onSave, onClose }) {
             </select>
           </div>
           <div className="field">
-            <label>Serial Number</label>
-            <input value={form.serial} onChange={e => set('serial', e.target.value)} placeholder="e.g. 00001-11000" />
+            <label>Invoice # <span className="req">*</span></label>
+            <input value={form.order_number} onChange={e => set('order_number', e.target.value)} placeholder="e.g. INV-20260710-001" />
           </div>
+        </div>
+
+        <div className="field">
+          <label>Serial Number</label>
+          <input value={form.serial} onChange={e => set('serial', e.target.value)} placeholder="e.g. 00001-11000" />
         </div>
 
         <div className="grid2">
