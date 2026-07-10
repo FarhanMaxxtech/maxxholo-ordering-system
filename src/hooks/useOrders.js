@@ -25,6 +25,22 @@ async function sendNotification(message, userEmail = null) {
   if (error) console.error('Notification error:', error)
 }
 
+async function sendOrderEmail({ type, order, recipientEmail = null, status = null }) {
+  try {
+    const { error } = await supabase.functions.invoke('notify-new-order', {
+      body: {
+        type,
+        order,
+        recipientEmail,
+        status,
+      },
+    })
+    if (error) console.error('Email error:', error)
+  } catch (err) {
+    console.error('Email error:', err)
+  }
+}
+
 export function useOrders() {
   const [orders,  setOrders]  = useState([])
   const [loading, setLoading] = useState(false)
@@ -53,15 +69,22 @@ export function useOrders() {
       if (error) throw new Error(error.message)
     } else {
       const order_number = await generateInvoiceNumber()
+      const newOrder = { ...rec, submitted_by: submittedBy, order_number, status: 'Pending' }
       const { error } = await supabase
         .from('orders')
-        .insert({ ...rec, submitted_by: submittedBy, order_number, status: 'Pending' })
+        .insert(newOrder)
       if (error) throw new Error(error.message)
 
       // ── Notify admin about new order (broadcast to all) ──
       await sendNotification(
         `📋 New order ${order_number} submitted — ${rec.brand} (${rec.company})`
       )
+
+      await sendOrderEmail({
+        type: 'new_order',
+        order: newOrder,
+        recipientEmail: submittedBy,
+      })
     }
     await loadOrders()
     if (typeof window !== 'undefined') {
@@ -90,6 +113,15 @@ export function useOrders() {
         `${statusEmoji[status] || '📦'} Your order ${order.order_number} — ${order.brand} is now ${status}`,
         targetEmail
       )
+
+      if (['In Production', 'Shipped'].includes(status)) {
+        await sendOrderEmail({
+          type: 'status_update',
+          order: { ...order, status },
+          recipientEmail: ty,
+          status,
+        })
+      }
     }
 
     setOrders(prev => prev.map(o => (o.id === id ? { ...o, status } : o)))
@@ -121,6 +153,15 @@ export function useOrders() {
         `${statusEmoji[status] || '📦'} Your order ${order.order_number} — ${order.brand} updated to ${status}`,
         targetEmail
       )
+
+      if (['In Production', 'Shipped'].includes(status)) {
+        await sendOrderEmail({
+          type: 'status_update',
+          order: { ...order, status },
+          recipientEmail: targetEmail,
+          status,
+        })
+      }
     }
 
     // ── Notify if tracking number added ──
