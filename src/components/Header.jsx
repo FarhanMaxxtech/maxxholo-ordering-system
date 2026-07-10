@@ -121,9 +121,9 @@ export default function Header({ me, theme, onToggleTheme, onNewOrder, onLogout 
     <header className="header">
       <div className="brand" style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:4 }}>
         <div className="logochip">
-          <img src={logo} alt="Maxxholo logo" style={{ height: 15, width: 'auto' }} />
+          <img src={logo} alt="Maxxholo logo" style={{ height: 13, width: 'auto' }} />
         </div>
-        <div style={{ fontSize:10, color:'var(--muted)', whiteSpace:'nowrap', textAlign:'center' }}>
+        <div style={{ fontSize:8, color:'var(--muted)', whiteSpace:'nowrap', textAlign:'center' }}>
           Job Order System
         </div>
       </div>
@@ -179,8 +179,8 @@ export default function Header({ me, theme, onToggleTheme, onNewOrder, onLogout 
             + Job
           </button>
         )}
-        <button className="btn ghost sm inline" onClick={onLogout}>
-          Sign out
+        <button className="btn ghost sm inline" onClick={onLogout} title="Sign out">
+          Sign  <br /> out
         </button>
       </div>
     </header>
