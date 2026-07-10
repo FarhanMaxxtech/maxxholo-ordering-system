@@ -85,7 +85,12 @@ export default function OrdersPage({
   })
 
   async function handleSaveOrder(formData, id) {
-    await saveOrder(formData, id, me.email)
+    await saveOrder(formData, id, me.email, isAdmin)
+  }
+
+  function handleEditOrder(order) {
+    setEditOrder(order)
+    setFormOpen(true)
   }
 
   function openAdmin(id) {
@@ -159,6 +164,7 @@ export default function OrdersPage({
             isAdmin={isAdmin}
             onQuickStatus={updateStatus}
             onManage={openAdmin}
+            onEditOrder={handleEditOrder}
           />
         ))}
       </div>
