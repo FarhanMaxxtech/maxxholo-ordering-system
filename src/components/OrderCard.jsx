@@ -26,9 +26,20 @@ function getStepIndex(status) {
   return i === -1 ? 0 : i
 }
 
-export default function OrderCard({ order: o, isAdmin, onQuickStatus, onManage }) {
+function readOrderEditCounts() {
+  if (typeof window === 'undefined') return {}
+  try {
+    return JSON.parse(window.localStorage.getItem('maxxholo:order-edit-counts') || '{}')
+  } catch {
+    return {}
+  }
+}
+
+export default function OrderCard({ order: o, isAdmin, onQuickStatus, onManage, onEditOrder }) {
   const hasTracking = o.tracking_number && o.courier
   const currentStep = getStepIndex(o.status)
+  const orderEditUsed = Number(readOrderEditCounts()[o.id] || 0) >= 1
+  const canEditOrder = !isAdmin && !orderEditUsed
 
   function openTracking() {
     const urlFn = COURIER_TRACKING_URL[o.courier] || COURIER_TRACKING_URL['other']
@@ -44,21 +55,33 @@ export default function OrderCard({ order: o, isAdmin, onQuickStatus, onManage }
           <div className="brandname">{o.brand}</div>
           <div className="company">{o.company}</div>
         </div>
-        <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-end', gap:4 }}>
-          <span className={`pill ${o.order_type === 'NEW ORDER' ? 'new' : 'repeat'}`}>
-            {o.order_type === 'NEW ORDER' ? 'NEW' : 'REPEAT'}
-          </span>
-          {o.status === 'Completed' && (
-            <span style={{
-              fontSize:10, fontWeight:700,
-              background:'rgba(46,163,107,.2)',
-              color:'var(--green)',
-              padding:'2px 8px',
-              borderRadius:20,
-            }}>
-              ✓ Completed
-            </span>
+        <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+          {!isAdmin && (
+            <button
+              className="btn ghost sm"
+              onClick={() => onEditOrder?.(o)}
+              disabled={!canEditOrder}
+              style={{ minWidth: 72, justifyContent:'center' }}
+            >
+              {orderEditUsed ? 'Locked' : 'Edit'}
+            </button>
           )}
+          <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-end', gap:4 }}>
+            <span className={`pill ${o.order_type === 'NEW ORDER' ? 'new' : 'repeat'}`}>
+              {o.order_type === 'NEW ORDER' ? 'NEW' : 'REPEAT'}
+            </span>
+            {o.status === 'Completed' && (
+              <span style={{
+                fontSize:10, fontWeight:700,
+                background:'rgba(46,163,107,.2)',
+                color:'var(--green)',
+                padding:'2px 8px',
+                borderRadius:20,
+              }}>
+                ✓ Completed
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
