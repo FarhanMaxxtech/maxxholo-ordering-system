@@ -1,18 +1,20 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 
-async function generateInvoiceNumber() {
-  const today = new Date()
-  const dateStr = today.getFullYear().toString() +
-    String(today.getMonth() + 1).padStart(2, '0') +
-    String(today.getDate()).padStart(2, '0')
-  const prefix = `INV-${dateStr}-`
-  const { data } = await supabase
-    .from('orders')
-    .select('order_number')
-    .like('order_number', `${prefix}%`)
-  const nextNum = (data?.length || 0) + 1
-  return `${prefix}${String(nextNum).padStart(3, '0')}`
+const ORDER_EDIT_STORAGE_KEY = 'maxxholo:order-edit-counts'
+
+function readOrderEditCounts() {
+  if (typeof window === 'undefined') return {}
+  try {
+    return JSON.parse(window.localStorage.getItem(ORDER_EDIT_STORAGE_KEY) || '{}')
+  } catch {
+    return {}
+  }
+}
+
+function writeOrderEditCounts(counts) {
+  if (typeof window === 'undefined') return
+  window.localStorage.setItem(ORDER_EDIT_STORAGE_KEY, JSON.stringify(counts))
 }
 
 // ── Send notification helper ──
@@ -56,20 +58,54 @@ export function useOrders() {
     if (error) {
       setError(error.message)
     } else {
-      setOrders(data || [])
+      const counts = readOrderEditCounts()
+      const merged = (data || []).map(order => ({
+        ...order,
+        sales_edit_count: Number(counts[order.id] || 0),
+      }))
+      setOrders(merged)
     }
     setLoading(false)
   }
 
   useEffect(() => { loadOrders() }, [])
 
-  async function saveOrder(rec, id = null, submittedBy = '') {
+  async function saveOrder(rec, id = null, submittedBy = '', isAdmin = false) {
+    const invoiceNumber = (rec.order_number || '').trim()
+
     if (id) {
-      const { error } = await supabase.from('orders').update(rec).eq('id', id)
+      const counts = readOrderEditCounts()
+      const editCount = Number(counts[id] || 0)
+
+      if (!isAdmin && editCount >= 1) {
+        throw new Error('This order can only be edited once by a sales account.')
+      }
+
+      const { data: existingOrder } = await supabase
+        .from('orders')
+        .select('order_number')
+        .eq('id', id)
+        .single()
+
+      const updatePayload = {
+        ...rec,
+        order_number: invoiceNumber || existingOrder?.order_number || null,
+      }
+
+      const { error } = await supabase.from('orders').update(updatePayload).eq('id', id)
       if (error) throw new Error(error.message)
+
+      if (!isAdmin) {
+        counts[id] = editCount + 1
+        writeOrderEditCounts(counts)
+      }
     } else {
-      const order_number = await generateInvoiceNumber()
-      const newOrder = { ...rec, submitted_by: submittedBy, order_number, status: 'Pending' }
+      const newOrder = {
+        ...rec,
+        submitted_by: submittedBy,
+        order_number: invoiceNumber || null,
+        status: 'Pending',
+      }
       const { error } = await supabase
         .from('orders')
         .insert(newOrder)
@@ -77,7 +113,7 @@ export function useOrders() {
 
       // ── Notify admin about new order (broadcast to all) ──
       await sendNotification(
-        `📋 New order ${order_number} submitted — ${rec.brand} (${rec.company})`
+        `📋 New order ${invoiceNumber || '—'} submitted — ${rec.brand} (${rec.company})`
       )
 
       await sendOrderEmail({
@@ -118,7 +154,7 @@ export function useOrders() {
         await sendOrderEmail({
           type: 'status_update',
           order: { ...order, status },
-          recipientEmail: ty,
+          recipientEmail: targetEmail,
           status,
         })
       }
