@@ -2,6 +2,36 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { supabaseAdmin as adminClient } from '../lib/supabaseAdmin'
 
+async function syncAppAccount(authUser, { username, fullName, role }) {
+  const normalizedUsername = username.trim().toLowerCase()
+  const normalizedEmail = authUser.email?.trim().toLowerCase()
+
+  if (!normalizedEmail) throw new Error('Email is required for account sync.')
+
+  const { data: existing, error: lookupError } = await adminClient
+    .from('app_accounts')
+    .select('id')
+    .or(`email.eq.${normalizedEmail},username.eq.${normalizedUsername}`)
+    .maybeSingle()
+
+  if (lookupError) throw new Error(lookupError.message)
+
+  const payload = {
+    email: normalizedEmail,
+    username: normalizedUsername,
+    full_name: fullName.trim(),
+    role,
+  }
+
+  if (existing?.id) {
+    const { error } = await adminClient.from('app_accounts').update(payload).eq('id', existing.id)
+    if (error) throw new Error(error.message)
+  } else {
+    const { error } = await adminClient.from('app_accounts').insert(payload)
+    if (error) throw new Error(error.message)
+  }
+}
+
 // ── Admin client using service_role key ──
 // This bypasses RLS and can create/manage auth users
 export default function UsersPage() {
@@ -154,9 +184,10 @@ function UserForm({ user, onClose, onDone }) {
 
     setSaving(true)
     try {
+      let authUser
       if (!isEdit) {
         // ── Create new user ──
-        const { error } = await adminClient.auth.admin.createUser({
+        const { data, error } = await adminClient.auth.admin.createUser({
           email:            email.trim(),
           password:         password,
           email_confirm:    true,
@@ -167,6 +198,7 @@ function UserForm({ user, onClose, onDone }) {
           },
         })
         if (error) throw new Error(error.message)
+        authUser = data.user
       } else {
         // ── Update existing user ──
         const updates = {
@@ -179,12 +211,22 @@ function UserForm({ user, onClose, onDone }) {
         if (password.length >= 6) {
           updates.password = password
         }
-        const { error } = await adminClient.auth.admin.updateUserById(
+        const { data, error } = await adminClient.auth.admin.updateUserById(
           user.id,
           updates
         )
         if (error) throw new Error(error.message)
+        authUser = data.user
       }
+
+      if (authUser) {
+        await syncAppAccount(authUser, {
+          username,
+          fullName,
+          role,
+        })
+      }
+
       onDone()
     } catch (e) {
       setError(e.message)
@@ -215,6 +257,13 @@ function UserForm({ user, onClose, onDone }) {
     try {
       const { error } = await adminClient.auth.admin.deleteUser(user.id)
       if (error) throw new Error(error.message)
+
+      const { error: deleteAccountErr } = await adminClient
+        .from('app_accounts')
+        .delete()
+        .or(`email.eq.${user.email},username.eq.${user.username}`)
+      if (deleteAccountErr) throw new Error(deleteAccountErr.message)
+
       onDone()
     } catch (e) {
       setError(e.message)
