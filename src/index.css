@@ -258,6 +258,9 @@
     justify-self: center;
     padding-top: 0;
   }
+  .header-center-title {
+    font-size: 10px;
+  }
   .brand h1 {
     font-size: 13px;
   }
@@ -268,6 +271,16 @@
     gap: 8px;
   }
   .who {
+    display: none;
+  }
+
+  /* Desktop version shown by default */
+  .signout-desktop {
+    display: inline;
+  }
+
+  /* Mobile version hidden on desktop */
+  .signout-mobile {
     display: none;
   }
 
