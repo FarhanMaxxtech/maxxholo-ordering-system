@@ -3,6 +3,10 @@ import { supabase } from '../lib/supabase'
 
 const ORDER_EDIT_STORAGE_KEY = 'maxxholo:order-edit-counts'
 
+// TODO: replace with boss's real email once testing is confirmed working
+// Later, consider querying app_accounts where role='admin' to notify all admins dynamically
+const ADMIN_NOTIFY_EMAIL = 'bone@maxxtech.tech'
+
 function readOrderEditCounts() {
   if (typeof window === 'undefined') return {}
   try {
@@ -121,6 +125,13 @@ export function useOrders() {
         order: newOrder,
         recipientEmail: submittedBy,
       })
+
+      // ── Also notify admin ──
+      await sendOrderEmail({
+        type: 'new_order',
+        order: newOrder,
+        recipientEmail: ADMIN_NOTIFY_EMAIL,
+      })
     }
     await loadOrders()
     if (typeof window !== 'undefined') {
@@ -155,6 +166,14 @@ export function useOrders() {
           type: 'status_update',
           order: { ...order, status },
           recipientEmail: targetEmail,
+          status,
+        })
+
+        // ── Also notify admin ──
+        await sendOrderEmail({
+          type: 'status_update',
+          order: { ...order, status },
+          recipientEmail: ADMIN_NOTIFY_EMAIL,
           status,
         })
       }
@@ -197,6 +216,14 @@ export function useOrders() {
           recipientEmail: targetEmail,
           status,
         })
+          // ── Also notify admin ──
+        await sendOrderEmail({
+          type: 'status_update',
+          order: { ...order, status },
+          recipientEmail: ADMIN_NOTIFY_EMAIL,
+          status,
+        })
+
       }
     }
 
