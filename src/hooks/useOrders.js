@@ -7,6 +7,20 @@ const ORDER_EDIT_STORAGE_KEY = 'maxxholo:order-edit-counts'
 // Later, consider querying app_accounts where role='admin' to notify all admins dynamically
 const ADMIN_NOTIFY_EMAIL = 'bone@maxxtech.tech'
 
+async function resolveRecipientEmail(email) {
+  if (!email) return null
+  const { data, error } = await supabase
+    .from('app_accounts')
+    .select('contact_email')
+    .eq('email', email)
+    .maybeSingle()
+  if (error) {
+    console.error('Contact email lookup error:', error)
+    return email
+  }
+  return data?.contact_email || email
+}
+
 function readOrderEditCounts() {
   if (typeof window === 'undefined') return {}
   try {
@@ -120,10 +134,11 @@ export function useOrders() {
         `📋 New order ${invoiceNumber || '—'} submitted — ${rec.brand} (${rec.company})`
       )
 
+      const resolvedEmail = await resolveRecipientEmail(submittedBy)
       await sendOrderEmail({
         type: 'new_order',
         order: newOrder,
-        recipientEmail: submittedBy,
+        recipientEmail: resolvedEmail,
       })
 
       // ── Also notify admin ──
@@ -162,10 +177,11 @@ export function useOrders() {
       )
 
       if (['In Production', 'Shipped'].includes(status)) {
+        const resolvedEmail = await resolveRecipientEmail(targetEmail)
         await sendOrderEmail({
           type: 'status_update',
           order: { ...order, status },
-          recipientEmail: targetEmail,
+          recipientEmail: resolvedEmail,
           status,
         })
 
@@ -210,12 +226,14 @@ export function useOrders() {
       )
 
       if (['In Production', 'Shipped'].includes(status)) {
+        const resolvedEmail = await resolveRecipientEmail(targetEmail)
         await sendOrderEmail({
           type: 'status_update',
           order: { ...order, status },
-          recipientEmail: targetEmail,
+          recipientEmail: resolvedEmail,
           status,
         })
+      
           // ── Also notify admin ──
         await sendOrderEmail({
           type: 'status_update',
