@@ -18,7 +18,7 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "^1.44.0",
+    "@cloudflare/vite-plugin": "^1.45.0",
     "@eslint/js": "^10.0.1",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
@@ -28,6 +28,6 @@
     "eslint-plugin-react-refresh": "^0.5.3",
     "globals": "^17.6.0",
     "vite": "^8.1.0",
-    "wrangler": "^4.110.0"
+    "wrangler": "^4.111.0"
   }
 }
