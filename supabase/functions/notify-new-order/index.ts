@@ -18,7 +18,7 @@ Deno.serve(async (req: Request) => {
     const status = body.status || order.status || ''
 
     const resendApiKey = Deno.env.get('RESEND_API_KEY')
-    const fromAddress = 'Maxxholo Orders <onboarding@resend.dev>'
+    const fromAddress = 'Maxxholo Orders <orders@maxxtech.tech>'
     const to = recipientEmail ? [recipientEmail] : [Deno.env.get('ADMIN_EMAIL') || 'onboarding@resend.dev']
     const subject = type === 'status_update'
       ? `📦 Order ${order.order_number || 'Update'} — ${status}`
