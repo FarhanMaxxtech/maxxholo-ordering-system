@@ -39,7 +39,7 @@ export default function OrderCard({ order: o, isAdmin, onQuickStatus, onManage, 
   const hasTracking = o.tracking_number && o.courier
   const currentStep = getStepIndex(o.status)
   const orderEditUsed = Number(readOrderEditCounts()[o.id] || 0) >= 1
-  const canEditOrder = !isAdmin && !orderEditUsed
+  const canEditOrder = isAdmin || !orderEditUsed
 
   function openTracking() {
     const urlFn = COURIER_TRACKING_URL[o.courier] || COURIER_TRACKING_URL['other']
@@ -56,16 +56,14 @@ export default function OrderCard({ order: o, isAdmin, onQuickStatus, onManage, 
           <div className="company">{o.company}</div>
         </div>
         <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-          {!isAdmin && (
-            <button
-              className="btn ghost sm"
-              onClick={() => onEditOrder?.(o)}
-              disabled={!canEditOrder}
-              style={{ minWidth: 72, justifyContent:'center' }}
-            >
-              {orderEditUsed ? 'Locked' : 'Edit'}
-            </button>
-          )}
+          <button
+            className="btn ghost sm"
+            onClick={() => onEditOrder?.(o)}
+            disabled={!canEditOrder}
+            style={{ minWidth: 72, justifyContent:'center' }}
+          >
+            {(!isAdmin && orderEditUsed) ? 'Locked' : 'Edit'}
+          </button>
           <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-end', gap:4 }}>
             <span className={`pill ${o.order_type === 'NEW ORDER' ? 'new' : 'repeat'}`}>
               {o.order_type === 'NEW ORDER' ? 'NEW' : 'REPEAT'}
