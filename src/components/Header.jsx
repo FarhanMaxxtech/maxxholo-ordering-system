@@ -174,11 +174,9 @@ export default function Header({ me, theme, onToggleTheme, onNewOrder, onLogout 
         <button className="btn ghost sm theme-toggle" onClick={onToggleTheme} title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}>
           {theme === 'dark' ? '☀️' : '🌙'}
         </button>
-        {!isAdmin && (
-          <button className="btn ghost sm inline" onClick={onNewOrder}>
-            + Job
-          </button>
-        )}
+        <button className="btn ghost sm inline" onClick={onNewOrder}>
+          + Job
+        </button>
         <button className="btn ghost sm inline" onClick={onLogout} title="Sign out">
           Sign  <br /> out
         </button>
