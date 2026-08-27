@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react'
 import { useOrders } from '../hooks/useOrders'
 
 //const STATUSES = ['Received', 'Confirmed', 'In Production', 'Shipped', 'Completed']
-const STATUSES = ['In Production', 'Shipped', 'Completed']
+const STATUSES = ['Pending', 'In Production', 'Shipped', 'Completed']
 
 function StatCard({ label, num }) {
   return (
@@ -90,7 +90,10 @@ export default function DashboardPage() {
         <div style={{ marginTop: 8 }}>
           {STATUSES.map(s => {
             const count = filtered.filter(o => o.status === s).length
-            const pct   = total ? Math.round((count / total) * 100) : 0
+            const maxCount = Math.max(...STATUSES.map(st => filtered.filter(o => o.status === st).length), 1)
+            const pct = count > 0
+              ? Math.max((Math.log(count + 1) / Math.log(maxCount + 1)) * 100, 3)
+              : 0
             return (
               <div key={s} style={{ margin: '8px 0' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 3 }}>
