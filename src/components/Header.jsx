@@ -129,7 +129,7 @@ export default function Header({ me, theme, onToggleTheme, onNewOrder, onLogout 
       </div>
 
       <div className="header-center-title">
-        Maxxtech
+        Maxxtech1
       </div>
 
       <div className="headright">
