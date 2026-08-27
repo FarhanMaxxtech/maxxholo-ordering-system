@@ -114,19 +114,19 @@ export default function App() {
   ]
 
   return (
-    <div style={{ width:'100%', maxWidth:'100%', overflowX:'hidden' }}>
-      <Header
-        me={me}
-        theme={theme}
-        onToggleTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-        onNewOrder={() => {
-          setActiveTab('orders')
-          setFormOpen(true)
-        }}
-        onLogout={doLogout}
-      />
+  <div style={{ width:'100%', maxWidth:'100%', overflowX:'hidden', minHeight:'100vh', display:'flex', flexDirection:'column' }}>
+    <Header
+      me={me}
+      theme={theme}
+      onToggleTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+      onNewOrder={() => {
+        setActiveTab('orders')
+        setFormOpen(true)
+      }}
+      onLogout={doLogout}
+    />
 
-      <div className="wrap">
+    <div className="wrap" style={{ flex: 1 }}>
         {/* ── Tabs row with action buttons ── */}
         <div className="tabs-row">
           <div className="tabs">
@@ -167,12 +167,12 @@ export default function App() {
       </div>
 
       <footer style={{
-        textAlign:'center', padding:'16px',
-        fontSize:11, color:'var(--muted)',
-        borderTop:'1px solid var(--line)', marginTop:40,
-      }}>
-        Powered by Maxxtech Systems Sdn Bhd
-      </footer>
+      textAlign:'center', padding:'16px',
+      fontSize:11, color:'var(--muted)',
+      borderTop:'1px solid var(--line)', marginTop:40,
+    }}>
+      Powered by Maxxtech Systems Sdn Bhd
+    </footer>
     </div>
   )
 }

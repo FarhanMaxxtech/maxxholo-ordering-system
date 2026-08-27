@@ -480,3 +480,8 @@
   background: var(--accent);
   border-color: var(--accent);
 }
+
+.dashboard-panel {
+  min-height: auto;
+  height: auto;
+}
