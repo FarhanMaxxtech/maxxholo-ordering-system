@@ -16,20 +16,28 @@ Deno.serve(async (req: Request) => {
     const order = body.order || body.record || {}
     const recipientEmail = body.recipientEmail || null
     const status = body.status || order.status || ''
+    const deletedBy = body.deletedBy || ''
 
     const resendApiKey = Deno.env.get('RESEND_API_KEY')
     const fromAddress = 'Maxxholo Orders <orders@maxxtech.tech>'
     const to = recipientEmail ? [recipientEmail] : [Deno.env.get('ADMIN_EMAIL') || 'onboarding@resend.dev']
+
     const subject = type === 'status_update'
       ? `📦 Order ${order.order_number || 'Update'} — ${status}`
+      : type === 'order_deleted'
+      ? `🗑️ Order ${order.order_number || ''} — ${order.brand || '—'} deleted`
       : `📦 New Order ${order.order_number || ''} — ${order.brand || '—'}`
 
     const title = type === 'status_update'
       ? `Order status updated to ${status}`
+      : type === 'order_deleted'
+      ? 'Job Order Deleted'
       : 'New Job Order Submitted'
 
     const message = type === 'status_update'
       ? `Your order ${order.order_number || '—'} is now ${status}.`
+      : type === 'order_deleted'
+      ? `Order ${order.order_number || '—'} — ${order.brand || '—'} has been removed${deletedBy ? ` by ${deletedBy}` : ''}.`
       : `A new job order has been submitted and is currently ${order.status || 'Pending'}.`
 
     if (!resendApiKey) {
