@@ -5,7 +5,7 @@ const ORDER_EDIT_STORAGE_KEY = 'maxxholo:order-edit-counts'
 
 // TODO: replace with boss's real email once testing is confirmed working
 // Later, consider querying app_accounts where role='admin' to notify all admins dynamically
-const ADMIN_NOTIFY_EMAIL = 'bone@maxxtech.tech'
+const ADMIN_NOTIFY_EMAIL = 'wingtom2001@gmail.com'
 
 async function resolveRecipientEmail(email) {
   if (!email) return null
