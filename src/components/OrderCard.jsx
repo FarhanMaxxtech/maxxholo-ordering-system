@@ -35,7 +35,7 @@ function readOrderEditCounts() {
   }
 }
 
-export default function OrderCard({ order: o, isAdmin, onQuickStatus, onManage, onEditOrder }) {
+export default function OrderCard({ order: o, isAdmin, onQuickStatus, onManage, onEditOrder, onDeleteOrder, viewMode }) {
   const hasTracking = o.tracking_number && o.courier
   const currentStep = getStepIndex(o.status)
   const orderEditUsed = Number(readOrderEditCounts()[o.id] || 0) >= 1
@@ -44,6 +44,14 @@ export default function OrderCard({ order: o, isAdmin, onQuickStatus, onManage, 
   function openTracking() {
     const urlFn = COURIER_TRACKING_URL[o.courier] || COURIER_TRACKING_URL['other']
     window.open(urlFn(o.tracking_number), '_blank')
+  }
+
+  function handleDeleteClick() {
+    const confirmed = confirm(
+      `Delete order for "${o.brand}" (${o.company})?\n\nThis will remove it from view, but the record stays in the database.`
+    )
+    if (!confirmed) return
+    onDeleteOrder?.(o.id)
   }
 
   return (
@@ -55,16 +63,21 @@ export default function OrderCard({ order: o, isAdmin, onQuickStatus, onManage, 
           <div className="brandname">{o.brand}</div>
           <div className="company">{o.company}</div>
         </div>
-        <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-          <button
-            className="btn ghost sm"
-            onClick={() => onEditOrder?.(o)}
-            disabled={!canEditOrder}
-            style={{ minWidth: 72, justifyContent:'center' }}
+        <div style={{ display:'flex', alignItems:'flex-start', gap:8 }}>
+          {isAdmin && viewMode !== 'history' && (
+            <button className="btn danger sm" onClick={handleDeleteClick} style={{ minWidth: 72, justifyContent:'center' }}>
+              Delete
+            </button>
+          )}
+          <button 
+            className="btn ghost sm" 
+            onClick={() => onEditOrder?.(o)} 
+            disabled={!canEditOrder} 
+            style={{ minWidth: 72, justifyContent:'center', flexShrink: 0, marginRight: viewMode === 'history' ? -25 : 0  }}
           >
             {(!isAdmin && orderEditUsed) ? 'Locked' : 'Edit'}
           </button>
-          <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-end', gap:4 }}>
+          <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-end', gap:4, flexShrink: 0 }}>
             <span className={`pill ${o.order_type === 'NEW ORDER' ? 'new' : 'repeat'}`}>
               {o.order_type === 'NEW ORDER' ? 'NEW' : 'REPEAT'}
             </span>

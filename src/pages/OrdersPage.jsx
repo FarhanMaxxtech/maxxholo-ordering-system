@@ -18,7 +18,7 @@ export default function OrdersPage({
 }) {
   const isAdmin = me.role === 'admin'
 
-  const { orders, loading, loadOrders, saveOrder, updateStatus, saveAdmin, deleteOrder } = useOrders()
+  const { orders, loading, loadOrders, saveOrder, updateStatus, saveAdmin, deleteOrder, deactivateOrder } = useOrders()
 
   const [search,       setSearch]       = useState('')
   const [filterStatus, setFilterStatus] = useState('')
@@ -86,6 +86,10 @@ export default function OrdersPage({
 
   async function handleSaveOrder(formData, id) {
     await saveOrder(formData, id, me.email, isAdmin)
+  }
+
+  async function handleDeleteOrder(id) {
+    await deactivateOrder(id, me.email)
   }
 
   function handleEditOrder(order) {
@@ -158,15 +162,17 @@ export default function OrdersPage({
           </div>
         )}
         {!loading && filtered.map(o => (
-          <OrderCard
-            key={o.id}
-            order={o}
-            isAdmin={isAdmin}
-            onQuickStatus={updateStatus}
-            onManage={openAdmin}
-            onEditOrder={handleEditOrder}
-          />
-        ))}
+            <OrderCard
+              key={o.id}
+              order={o}
+              isAdmin={isAdmin}
+              onQuickStatus={updateStatus}
+              onManage={openAdmin}
+              onEditOrder={handleEditOrder}
+              onDeleteOrder={handleDeleteOrder}
+              viewMode={viewMode}
+            />
+          ))}
       </div>
 
       {/* ── Modals ── */}

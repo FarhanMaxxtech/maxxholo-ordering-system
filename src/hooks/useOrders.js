@@ -5,7 +5,7 @@ const ORDER_EDIT_STORAGE_KEY = 'maxxholo:order-edit-counts'
 
 // TODO: replace with boss's real email once testing is confirmed working
 // Later, consider querying app_accounts where role='admin' to notify all admins dynamically
-const ADMIN_NOTIFY_EMAIL = 'bone@maxxtech.tech'
+const ADMIN_NOTIFY_EMAIL = 'wingtom2001@gmail.com'
 
 async function resolveRecipientEmail(email) {
   if (!email) return null
@@ -45,7 +45,7 @@ async function sendNotification(message, userEmail = null) {
   if (error) console.error('Notification error:', error)
 }
 
-async function sendOrderEmail({ type, order, recipientEmail = null, status = null }) {
+async function sendOrderEmail({ type, order, recipientEmail = null, status = null, deletedBy = null }) {
   try {
     const { error } = await supabase.functions.invoke('notify-new-order', {
       body: {
@@ -53,6 +53,7 @@ async function sendOrderEmail({ type, order, recipientEmail = null, status = nul
         order,
         recipientEmail,
         status,
+        deletedBy,
       },
     })
     if (error) console.error('Email error:', error)
@@ -72,6 +73,7 @@ export function useOrders() {
     const { data, error } = await supabase
       .from('orders')
       .select('*')
+      .eq('is_active', true)   
       .order('factory_out', { ascending: true, nullsFirst: false })
     if (error) {
       setError(error.message)
@@ -262,5 +264,54 @@ export function useOrders() {
     await loadOrders()
   }
 
-  return { orders, loading, error, loadOrders, saveOrder, updateStatus, saveAdmin, deleteOrder }
+  // ── Soft delete: hide from UI but keep the row in the database ──
+  // ── Soft delete: hide from UI but keep the row in the database ──
+async function deactivateOrder(id, deletedBy = '') {
+  const order = orders.find(o => o.id === id)
+
+  const { error } = await supabase
+    .from('orders')
+    .update({ is_active: false })
+    .eq('id', id)
+  if (error) throw new Error(error.message)
+
+  if (order) {
+    // ── Notify submitter (if a real user, not imported) ──
+    const targetEmail = order.submitted_by && order.submitted_by !== 'import'
+      ? order.submitted_by
+      : null
+
+    if (targetEmail) {
+      await sendNotification(
+        `🗑️ Your order ${order.order_number || '—'} — ${order.brand} was deleted`,
+        targetEmail
+      )
+      const resolvedEmail = await resolveRecipientEmail(targetEmail)
+      await sendOrderEmail({
+        type: 'order_deleted',
+        order,
+        recipientEmail: resolvedEmail,
+        deletedBy,
+      })
+    }
+
+    // ── Also notify admin ──
+    await sendNotification(
+      `🗑️ Order ${order.order_number || '—'} — ${order.brand} was deleted by ${deletedBy || 'admin'}`
+    )
+    await sendOrderEmail({
+      type: 'order_deleted',
+      order,
+      recipientEmail: ADMIN_NOTIFY_EMAIL,
+      deletedBy,
+    })
+  }
+
+  await loadOrders()
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('maxxholo:notifications-updated'))
+  }
+}
+
+  return { orders, loading, error, loadOrders, saveOrder, updateStatus, saveAdmin, deleteOrder, deactivateOrder }
 }
